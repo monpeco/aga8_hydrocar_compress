@@ -77,6 +77,43 @@ void initAga8Param (void) {
 }
 
 
+
+void initAga8ParamFlowCheck (void) {
+	//Parameters for Gulf Coast
+	aga8parameters.MFC[CID_METHANE] = 90.6724;
+	aga8parameters.MFC[CID_NITROGEN] = 3.1284;
+	aga8parameters.MFC[CID_CARBON_DIOXIDE] = 0.4676;
+	aga8parameters.MFC[CID_ETHANE] = 4.5279;
+	aga8parameters.MFC[CID_PROPANE] = 0.828;
+	aga8parameters.MFC[CID_I_BUTANE] = 0.1037;
+	aga8parameters.MFC[CID_N_BUTANE] = 0.1563;
+	aga8parameters.MFC[CID_I_PENTANE] = 0.0321;
+	aga8parameters.MFC[CID_N_PENTANE] = 0.0443;
+	aga8parameters.MFC[CID_N_HEXANE] = 0.0393;
+	aga8parameters.MFC[CID_N_HEPTANE] = 0.0000;
+	aga8parameters.MFC[CID_N_OCTANE] = 0.0000;
+
+	aga8parameters.ncc = 12;
+
+	aga8parameters.ci[1] = CID_METHANE;
+	aga8parameters.ci[2] = CID_NITROGEN;
+	aga8parameters.ci[3] = CID_CARBON_DIOXIDE;
+	aga8parameters.ci[4] = CID_ETHANE;
+	aga8parameters.ci[5] = CID_PROPANE;
+	aga8parameters.ci[6] = CID_I_BUTANE;
+	aga8parameters.ci[7] = CID_N_BUTANE;
+	aga8parameters.ci[8] = CID_I_PENTANE;
+	aga8parameters.ci[9] = CID_N_PENTANE;
+	aga8parameters.ci[10] = CID_N_HEXANE;
+	aga8parameters.ci[11] = CID_N_HEPTANE;
+	aga8parameters.ci[12] = CID_N_OCTANE;
+
+
+	aga8parameters.Tb = 288.15;
+    aga8parameters.Pb = 0.101325;
+
+}
+
 void testAGA7(double s) {
 
    double vb,vf,Fpm,Fpv,Ftm,Ftb,Fpb,tb,pb,pf,pa,tf;
@@ -96,6 +133,27 @@ void testAGA7(double s) {
    vb = vf*Fpm*Fpb*Ftm*Ftb*s;
 
    printf("Vlume at base conditions is: %f\n",vb);
+
+}
+
+void sample01(void) {
+	parameters.a1 = 0.00000925; /*OP*/
+	parameters.a2 = 0.00000620; /*pipe*/
+	parameters.Tr = 68;
+	parameters.dr = 2.000;
+	parameters.Dr = 4.025;
+	parameters.u  = 0.010268; /* cp for natural gas */
+	parameters.COpressureTaps = CO_PRESSURE_TAPS_FLANGE;
+
+
+	setUnits_US(&parameters);
+
+	measuredvalues.Tf = 86;
+	measuredvalues.Pf2 = 199.3;
+	measuredvalues.DP = 20;
+
+	/* This value needs to be calculated using AGA 8 */
+	measuredvalues.pf = 0.660758;
 
 }
 

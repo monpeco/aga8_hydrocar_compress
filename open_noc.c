@@ -99,3 +99,63 @@ void setUnits_SI(aga3param *param){
 	param->N4  = (REAL)0.0254;
 	param->N5  = (REAL)0.0;
 }
+
+
+
+void calcAga3(void) {
+
+	int iter;
+	clrscr();
+	printf("************** AGA CALCULATION TEST *****************\n");
+
+	sample03();
+
+
+	printParameters(&parameters);
+	printMeasured(&measuredvalues);
+
+	calc_df(&parameters,&measuredvalues,&calculatedvalues);
+	calc_Df(&parameters,&measuredvalues,&calculatedvalues);
+	calc_Bf(&parameters,&measuredvalues,&calculatedvalues);
+	calc_Ev(&parameters,&measuredvalues,&calculatedvalues);
+	calc_L1L2(&parameters,&measuredvalues,&calculatedvalues);
+
+	calc_Pf1(&parameters,&measuredvalues,&calculatedvalues);
+	printMeasured(&measuredvalues);
+
+	calc_k(&parameters,&measuredvalues,&calculatedvalues);
+	calc_x(&parameters,&measuredvalues,&calculatedvalues);
+	calc_Y(&parameters,&measuredvalues,&calculatedvalues);
+	calc_FI(&parameters,&measuredvalues,&calculatedvalues);
+
+	calc_M2(&parameters,&measuredvalues,&calculatedvalues);
+	calc_Tx(&parameters,&measuredvalues,&calculatedvalues);
+
+	calc_Cdx(&parameters,&measuredvalues,&calculatedvalues);
+
+	printCalculated(&calculatedvalues);
+
+	iter = 0;
+
+	while (calc_Cd(&parameters,&measuredvalues,&calculatedvalues)== ResultCalculationNotReady) {
+		iter = 1;
+		printf("************* Iteration: %d *****************",iter);
+		printCalculated(&calculatedvalues);
+	}
+
+	calc_Qb(&parameters,&measuredvalues,&calculatedvalues);
+
+	printf("************* FINAL RESULT *****************");
+	printCalculated(&calculatedvalues);
+
+}
+
+
+REAL FtoK(REAL F) {
+	return (F + 459.67) * 5 / 9;
+}
+
+
+REAL PSIAtoMPa(REAL P) {
+	return P * 0.006894757;
+}

@@ -77,6 +77,62 @@ void initAga8Param (void) {
 }
 
 
+void calcAga8(void) {
+	REAL p;
+	REAL d;
+	REAL z;
+	REAL t;
+
+	init_bip_tables();
+	initAga8Param();
+
+	aga8parameters.Tb = FtoK(32);
+	aga8parameters.Pb = PSIAtoMPa(14.73);
+
+
+	calc_CHARDL(&aga8parameters,&aga8calculated);
+//	calc_TEMP(&aga8parameters,&aga8calculated);
+//	calc_DDETAIL(&aga8parameters,&aga8calculated);
+
+	t = 50;
+
+	calc_TEMP(&aga8parameters,&aga8calculated,FtoK(t));
+
+	for (p=100;p<=1200;p+=100) {
+
+		d = calc_DDETAIL(&aga8parameters,&aga8calculated,PSIAtoMPa(p),FtoK(t));
+		z = calc_ZDETAIL(&aga8parameters,&aga8calculated,d,FtoK(t));
+
+		printf("%f\t%f\t%f\n",t,p,z);
+	}
+
+	t = 100;
+
+	calc_TEMP(&aga8parameters,&aga8calculated,FtoK(t));
+
+	for (p=100;p<=1200;p+=100) {
+
+		d = calc_DDETAIL(&aga8parameters,&aga8calculated,PSIAtoMPa(p),FtoK(t));
+		z = calc_ZDETAIL(&aga8parameters,&aga8calculated,d,FtoK(t));
+
+		printf("%f\t%f\t%f\n",t,p,z);
+	}
+
+	t = 130;
+
+	calc_TEMP(&aga8parameters,&aga8calculated,FtoK(t));
+
+	for (p=100;p<=1200;p+=100) {
+
+		d = calc_DDETAIL(&aga8parameters,&aga8calculated,PSIAtoMPa(p),FtoK(t));
+		z = calc_ZDETAIL(&aga8parameters,&aga8calculated,d,FtoK(t));
+
+		printf("%f\t%f\t%f\n",t,p,z);
+	}
+
+
+
+}
 
 void initAga8ParamFlowCheck (void) {
 	//Parameters for Gulf Coast
@@ -198,8 +254,8 @@ void main(void) {
     printf("For Flow T:%f\tP:%f\tZ:%f\tD:%f\n",tf,pf,zf,df);
     
     testAGA7(zb/zf);
-    /*   testUnits();*/
-    /*	calcAga8();*/
+    testUnits();
+    calcAga8();
     
     getch();
 }

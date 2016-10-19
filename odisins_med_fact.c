@@ -22,6 +22,13 @@ char C007_par_rol[8];
 char C010_par_fec_inicio[11];
 char C010_par_fec_fin[11];
 
+/* Parametros de lecturas (de medidores)  */
+typedef struct {
+	int *array;
+	int used;
+	int size;
+} Array;
+
 /* Constantes interacción db */
 #define NODATAFOUND 1403
 #define SQLNOTFOUND ( sqlca.sqlcode == NODATAFOUND )
@@ -49,13 +56,38 @@ char C100_prop_medidor[101] 	; 		EXEC SQL VAR C100_prop_medidor 		IS STRING(101)
 char C010_fec_hora_ini[11] 		; 		EXEC SQL VAR C010_fec_hora_ini 		IS STRING(11) 	;
 char C020_fec_datos[21] 		; 		EXEC SQL VAR C020_fec_datos 		IS STRING(21) 	;
 
+/* Declaracion estructuras datos lecturas */
+char C015_marca_aparato_2[16] 		; 		EXEC SQL VAR C015_marca_aparato_2 	IS STRING(16) 	;
+char C006_cod_modelo_2[7] 			; 		EXEC SQL VAR C006_cod_modelo_2 		IS STRING(7) 	;
+char C015_nro_aparato_2[16] 		; 		EXEC SQL VAR C015_nro_aparato_2		IS STRING(16) 	;
+char C010_fec_evento_2[11] 			; 		EXEC SQL VAR C010_fec_evento_2 		IS STRING(11) 	;
+char C004_tip_medida_2[5] 			; 		EXEC SQL VAR C004_tip_medida_2 		IS STRING(5) 	;
+char C016_lectura_2[17] 			; 		EXEC SQL VAR C016_lectura_2			IS STRING(17) 	;
+char C013_consumo_2[14] 			; 		EXEC SQL VAR C013_consumo_2			IS STRING(14) 	;
 
+	/*
+	MARCA_APARATO		NUMBER (15)
+	COD_MODELO			VARCHAR2 (6 Byte)
+	NRO_APARATO			NUMBER (15)
+	FEC_EVENTO			DATE
+	
+	TIP_MEDIDA			VARCHAR2 (4 Byte)
+	LECTURA				NUMBER (16,6)
+	CONSUMO				NUMBER (13,3)
+	*/
 EXEC SQL END DECLARE SECTION;
 
 /* Variables Uso General */
 int iCountLeidos=0;
 int iCountUpd=0;
 int iCountRechz=0;
+
+
+void initArray(Array *a, int initialSize) {
+  a->array = (int *)malloc(initialSize * sizeof(int));
+  a->used = 0;
+  a->size = initialSize;
+}
 
 /*************************************************************************/
 /* Concatena buffer con variables incluidas                              */
@@ -206,6 +238,100 @@ FECDATOS			C020_fec_datos			24/01/2013 12:54:05
 	else		   {return ( TRUE );}
 }
 
+/* ------------------------------------------------------------------------- */
+/*                        FECTCH QUERY DE LECTURAS                           */
+/* ------------------------------------------------------------------------- */
+int SQL_OPEN_lecturas(){
+	char C2000_sql_sente[2000];
+	int cantidad_lecturas = 0;
+	
+	memset(C2000_sql_sente, '\0', sizeof(C2000_sql_sente));
+	
+    strcpy(C2000_sql_sente, " select nro_aparato, ");
+    strpcat(C2000_sql_sente,"        marca_aparato, ");
+    strpcat(C2000_sql_sente,"        cod_modelo, ");
+    strpcat(C2000_sql_sente,"        fec_evento, ");
+    strpcat(C2000_sql_sente,"        tip_medida, ");
+    strpcat(C2000_sql_sente,"        lectura, ");
+    strpcat(C2000_sql_sente,"        consumo ");
+    strpcat(C2000_sql_sente," from nucssb0046 ");
+    strpcat(C2000_sql_sente,"        where cod_empresa = %s  " , C003_par_empresa);
+    strpcat(C2000_sql_sente,"        and nro_suministro = %s  " , C010_nro_suministro);
+    strpcat(C2000_sql_sente,"        and cor_consumo = (select min(cor_consumo) ");
+    strpcat(C2000_sql_sente,"                           from nucssb0046 ");
+    strpcat(C2000_sql_sente,"                           where cod_empresa = %s  " , C003_par_empresa);
+    strpcat(C2000_sql_sente,"                           and nro_suministro = %s  " , C010_nro_suministro);
+    strpcat(C2000_sql_sente,"                           and fec_evento > to_date('%s','dd/mm/yyyy hh24:mi:ss') " , C020_fec_datos);
+    strpcat(C2000_sql_sente,"                           ) ");
+
+	EXEC SQL DECLARE p_lecturas STATEMENT;
+    do_error("DECLARE p_lecturas (SQL_OPEN_lecturas)");
+
+	EXEC SQL PREPARE p_lecturas FROM :C2000_sql_sente;
+    do_error("PREPARE p_lecturas (SQL_OPEN_lecturas)");
+
+	EXEC SQL DECLARE cur_lecturas CURSOR FOR p_lecturas;
+    do_error("DECLARE cur_lecturas (SQL_OPEN_lecturas)");
+
+	EXEC SQL OPEN cur_lecturas;
+    do_error("OPEN cur_lecturas (SQL_OPEN_lecturas)");
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[SQL_OPEN_lecturas]\n");
+		printf("Resultado OK\n");
+		printf("------------------------------------------------------\n\n");
+	}	
+	
+	return ( TRUE );
+	
+}
+
+
+/* ------------------------------------------------------------------------- */
+/*                        FECTCH CURSOR DE LECTURAS                          */
+/* ------------------------------------------------------------------------- */
+int SQL_FETCH_lecturas(){
+	int		iRet;
+
+	memset(C015_marca_aparato_2, '\0', sizeof(C015_marca_aparato_2));
+	memset(C006_cod_modelo_2, '\0', sizeof(C006_cod_modelo_2));
+	memset(C015_nro_aparato_2, '\0', sizeof(C015_nro_aparato_2));
+	memset(C010_fec_evento_2, '\0', sizeof(C010_fec_evento_2));
+	memset(C004_tip_medida_2, '\0', sizeof(C004_tip_medida_2));
+	memset(C016_lectura_2, '\0', sizeof(C016_lectura_2));
+	memset(C013_consumo_2, 	'\0', sizeof(C013_consumo_2));
+	/*
+	MARCA_APARATO
+	COD_MODELO
+	NRO_APARATO
+	FEC_EVENTO
+	*/
+	
+	
+	
+    EXEC SQL 
+		FETCH cur_lecturas 
+		INTO :C015_marca_aparato_2,:C006_cod_modelo_2,:C015_nro_aparato_2,:C010_fec_evento_2,
+		:C004_tip_medida_2,:C016_lectura_2,:C013_consumo_2;
+
+    iRet = do_error("FETCH cur_lecturas (SQL_FETCH_lecturas)");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[SQL_FETCH_lecturas]\n");
+		printf("Resultado OK\n");
+		printf("------------------------------------------------------\n\n");
+	}
+
+	if(SQLNOTFOUND){return ( FALSE );}
+	else		   {return ( TRUE );}
+}
+
 
 /* ------------------------------------------------------------------------- */
 /*                        PROCESAMIENTO DE DATOS                                */
@@ -218,6 +344,23 @@ int bfnProcesar(){
 	{
 		while (SQL_FETCH_medidores())
 		{
+			if (SQL_OPEN_lecturas())
+			{
+				while (SQL_FETCH_lecturas())
+				{
+					printf("\n C010_nro_suministro:[%s]\t C020_fec_datos:[%s]\t C004_tip_medida_2:[%s]\t C016_lectura_2:[%s]\t C013_consumo_2:[%s]\n", C010_nro_suministro, C020_fec_datos, C004_tip_medida_2, C016_lectura_2, C013_consumo_2);		//TODO:quitar
+/* 
+					C010_nro_suministro
+					C020_fec_datos
+					C004_tip_medida_2
+					C016_lectura_2
+					C013_consumo_2 */
+					
+					
+				}
+				
+				
+			}
 			
 		}
 	}

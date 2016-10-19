@@ -413,12 +413,13 @@ int bfnProcesar(){
 	FILE	*fpMedidores=NULL;
 	char    C2000_Buffer[2001]; 	EXEC SQL VAR C2000_Buffer IS STRING(2001) ;
 
-	memset(C2000_Buffer, '\0', sizeof(C2000_Buffer));
 
 	if (SQL_OPEN_medidores())
 	{
 		while (SQL_FETCH_medidores())
 		{
+		memset(C2000_Buffer, '\0', sizeof(C2000_Buffer));
+
 			if (SQL_OPEN_lecturas())
 			{
 				int iLecturas = 0;
@@ -446,9 +447,13 @@ int bfnProcesar(){
 				/* Encabezado archivo */
 				strpcat(C2000_Buffer,"%-15.15s","Nro. orden");
 				strpcat(C2000_Buffer,"%c",delimiter);
-				strpcat(C2000_Buffer,"%-13.13s","Tipo de orden");
+				strpcat(C2000_Buffer,"%-14.14s","Tipo de orden");
 				strpcat(C2000_Buffer,"%c",delimiter);
-				strpcat(C2000_Buffer,"%-15.15s","Fec Cambio Med\n");
+				strpcat(C2000_Buffer,"%-15.15s","Fec Cambio Med");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-12.12s","Nro. cliente");
+
+				strpcat(C2000_Buffer,"%s","\n");
 								
 			}
 			
@@ -460,9 +465,14 @@ int bfnProcesar(){
 			/* Archivo de lecturas */
 			strpcat(C2000_Buffer,"%-15.15s",C015_nro_ord_norm);
 			strpcat(C2000_Buffer,"%c",delimiter);
-			strpcat(C2000_Buffer,"%-13.13s",C004_tipo_orden);
+			strpcat(C2000_Buffer,"%-14.14s",C004_tipo_orden);
 			strpcat(C2000_Buffer,"%c",delimiter);			
-			strpcat(C2000_Buffer,"%-10.10s\n",C010_fec_ejecucion);
+			strpcat(C2000_Buffer,"%-15.15s",C010_fec_ejecucion);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-12.12s",C010_nro_suministro);
+			
+			strpcat(C2000_Buffer,"%s","\n");
+			
 			
 			bfnAgregarArchivoSalida(fpMedidores,C2000_Buffer);
 			/* Fin archivo de normalizaciones */

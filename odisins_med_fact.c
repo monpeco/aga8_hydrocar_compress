@@ -14,6 +14,8 @@ EXEC SQL INCLUDE parametros.h;
 /* Variables Generales */
 #define DEBUG 0
 char C255_msg[256];
+char delimiter='\0';/*0x9;tab*/
+int flag_records=FALSE;
 
 /* Parametros de entrada */
 char C001_par_conexion[2];
@@ -22,12 +24,15 @@ char C007_par_rol[8];
 char C010_par_fec_inicio[11];
 char C010_par_fec_fin[11];
 
-/* Parametros de lecturas (de medidores)  */
-typedef struct {
-	int *array;
-	int used;
-	int size;
-} Array;
+/* Arreglo para las lecturas */
+struct lectura
+{
+    char C004_tip_medida_2[5];
+	char C016_lectura_2[17]; 	
+	char C013_consumo_2[14];
+};
+struct lectura lecturas[4];
+
 
 /* Constantes interacción db */
 #define NODATAFOUND 1403
@@ -65,6 +70,10 @@ char C004_tip_medida_2[5] 			; 		EXEC SQL VAR C004_tip_medida_2 		IS STRING(5) 	
 char C016_lectura_2[17] 			; 		EXEC SQL VAR C016_lectura_2			IS STRING(17) 	;
 char C013_consumo_2[14] 			; 		EXEC SQL VAR C013_consumo_2			IS STRING(14) 	;
 
+/* Variables generales CHAR */
+char	C255_nom_file[256]		;	 		EXEC SQL VAR C255_nom_file		IS STRING(256)	;
+
+
 	/*
 	MARCA_APARATO		NUMBER (15)
 	COD_MODELO			VARCHAR2 (6 Byte)
@@ -81,13 +90,6 @@ EXEC SQL END DECLARE SECTION;
 int iCountLeidos=0;
 int iCountUpd=0;
 int iCountRechz=0;
-
-
-void initArray(Array *a, int initialSize) {
-  a->array = (int *)malloc(initialSize * sizeof(int));
-  a->used = 0;
-  a->size = initialSize;
-}
 
 /*************************************************************************/
 /* Concatena buffer con variables incluidas                              */
@@ -302,15 +304,7 @@ int SQL_FETCH_lecturas(){
 	memset(C004_tip_medida_2, '\0', sizeof(C004_tip_medida_2));
 	memset(C016_lectura_2, '\0', sizeof(C016_lectura_2));
 	memset(C013_consumo_2, 	'\0', sizeof(C013_consumo_2));
-	/*
-	MARCA_APARATO
-	COD_MODELO
-	NRO_APARATO
-	FEC_EVENTO
-	*/
-	
-	
-	
+
     EXEC SQL 
 		FETCH cur_lecturas 
 		INTO :C015_marca_aparato_2,:C006_cod_modelo_2,:C015_nro_aparato_2,:C010_fec_evento_2,
@@ -333,12 +327,93 @@ int SQL_FETCH_lecturas(){
 }
 
 
+int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){/**/
+	int		iRet;
+	char	C256_pat_unix[256]	; EXEC SQL VAR C256_pat_unix   IS STRING(256);
+	char	C020_fecha[20]		; EXEC SQL VAR C020_fecha	   IS STRING(20);
+	
+	memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
+	memset(C020_fecha, '\0', sizeof(C020_fecha));
+	memset(C255_nom_file, '\0', sizeof(C255_nom_file));
+
+	/* Obtiene path unix */
+	EXEC SQL 
+		SELECT trim(pat_unix)
+		INTO   :C256_pat_unix
+		FROM   NUCSSB0044
+		WHERE  NUCSSB0044.COD_EMPRESA         = :C003_par_empresa  
+		AND    trim(NUCSSB0044.COD_SISTEMA)   = 'PERD'
+		AND    trim(NUCSSB0044.CEN_OPERATIVO) = 'TOD'
+		AND    trim(NUCSSB0044.TIP_PATH)      = 'LIST';
+    iRet = do_error("Select NUCSSB0044");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+	/* Obtiene fecha del sistema */
+    EXEC SQL
+         SELECT  TO_CHAR( sysdate, 'ddmmyyyy_hh24mi' )
+         INTO    :C020_fecha
+         FROM    DUAL;
+    iRet = do_error("Select SYSDATE");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+	/* Crea archivo de salida */
+	sprintf(C255_nom_file, "%s%s_%s_%s.%s", C256_pat_unix,prefix1,prefix2,C020_fecha,ext);
+	if( ( *fpOut = fopen( C255_nom_file, "w+" ) ) == NULL )
+	{
+		printf("ERR|Error al Generar Archivo <%s>. Error %s\n", 
+			   C255_nom_file, strerror(errno));
+		return ( FALSE );
+	}
+
+	//strcpy(C1024_archivo_norm,C255_nom_file); 
+
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[ifnCrearArchivoSalida]\n");
+		printf("Resultado [%s] OK\n",C255_nom_file);
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
+
+int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
+	int iRet = TRUE;
+
+	fprintf(fpOut, "%s",cBuffer);
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[ifnAgregarArchivoSalida]\n");
+		printf("[%s\n]",cBuffer);
+		printf("Resultado OK\n");
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
+
+
+int bfnCerrarArchivoSalida(FILE **fpOut){/**/
+	fclose ( *fpOut );
+
+	return ( TRUE );
+}
+
+
 /* ------------------------------------------------------------------------- */
 /*                        PROCESAMIENTO DE DATOS                                */
 /* ------------------------------------------------------------------------- */
 int bfnProcesar(){
-
+	FILE	*fpMedidores=NULL;
 	char    C2000_Buffer[2001]; 	EXEC SQL VAR C2000_Buffer IS STRING(2001) ;
+
+	memset(C2000_Buffer, '\0', sizeof(C2000_Buffer));
 
 	if (SQL_OPEN_medidores())
 	{
@@ -346,23 +421,55 @@ int bfnProcesar(){
 		{
 			if (SQL_OPEN_lecturas())
 			{
+				int iLecturas = 0;
+				memset(lecturas, '\0', sizeof(lecturas));
+
 				while (SQL_FETCH_lecturas())
 				{
-					printf("\n C010_nro_suministro:[%s]\t C020_fec_datos:[%s]\t C004_tip_medida_2:[%s]\t C016_lectura_2:[%s]\t C013_consumo_2:[%s]\n", C010_nro_suministro, C020_fec_datos, C004_tip_medida_2, C016_lectura_2, C013_consumo_2);		//TODO:quitar
-/* 
-					C010_nro_suministro
-					C020_fec_datos
-					C004_tip_medida_2
-					C016_lectura_2
-					C013_consumo_2 */
-					
-					
+					strcpy(lecturas[iLecturas%4].C004_tip_medida_2, C004_tip_medida_2);
+					strcpy(lecturas[iLecturas%4].C016_lectura_2, C016_lectura_2);
+					strcpy(lecturas[iLecturas%4].C013_consumo_2, C013_consumo_2);
+					iLecturas++;
 				}
 				
 				
 			}
 			
+			if(!flag_records)/*controla si hay registros*/
+			{
+				flag_records=TRUE;
+				if(!bfnCrearArchivoSalida(&fpMedidores,"came","fact","xls"))
+				{
+					return ( FALSE );
+				}
+				
+				/* Encabezado archivo */
+				strpcat(C2000_Buffer,"%-15.15s","Nro. orden");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-13.13s","Tipo de orden");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-15.15s","Fec Cambio Med\n");
+								
+			}
+			
+			
+			
+			
+			
+
+			/* Archivo de lecturas */
+			strpcat(C2000_Buffer,"%-15.15s",C015_nro_ord_norm);
+			strpcat(C2000_Buffer,"%c",delimiter);
+			strpcat(C2000_Buffer,"%-13.13s",C004_tipo_orden);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-10.10s\n",C010_fec_ejecucion);
+			
+			bfnAgregarArchivoSalida(fpMedidores,C2000_Buffer);
+			/* Fin archivo de normalizaciones */
+
 		}
+		bfnCerrarArchivoSalida(&fpMedidores);
+		
 	}
 		
 	return ( TRUE );

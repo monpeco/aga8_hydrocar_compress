@@ -451,12 +451,40 @@ int bfnProcesar(){
 				strpcat(C2000_Buffer,"%c",delimiter);
 				strpcat(C2000_Buffer,"%-15.15s","Fec Cambio Med");
 				strpcat(C2000_Buffer,"%c",delimiter);
-				strpcat(C2000_Buffer,"%-12.12s","Nro. cliente");
+				strpcat(C2000_Buffer,"%-13.13s","Nro. cliente");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-11.11s","Tarifa");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-101.101s","Clave tarifa");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-121.121s","Tipo Ejecución");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-20.20s","Marca Med Instalado");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-21.21s","Modelo Med Instalado");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-18.18s","Medidor instalado");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-101.101s","Propiedad Medidor");
 
 				strpcat(C2000_Buffer,"%s","\n");
 								
 			}
-			
+/*	
+NRO_ORD_NORM 	C015_nro_ord_norm	NUMBER (15)
+TIPOORDEN		C004_tipo_orden		char 4
+FECEJECUCION	C010_fec_ejecucion	date
+NRO_SUMINISTRO	C010_nro_suministro	NUMBER (10)
+TARIFA			C010_tarifa				CHAR (10 Byte)
+CLAVETARIFA		C100_clave_tarifa		VARCHAR2 (100 Byte)		nucssb0011.descripcion
+TIPOEJEC		C130_tipo_ejecucion		VARCHAR2 (20 Byte) + 3 + VARCHAR2 (100 Byte)		NUCSSB0011.VALOR1 + NUCSSB0011.DESCRIPCION
+MARCA_EQUIPO	C004_marca_equipo		CHAR (4 Byte)		hurssb0009.marca_equipo
+COD_MODELO		C006_cod_modelo			VARCHAR2 (6 Byte)	hurssb0009.COD_MODELO
+NRO_EQUIPO		C015_nro_equipo			NUMBER (15) 		hurssb0009.nro_equipo
+PROPMEDIDOR		C100_prop_medidor		VARCHAR2 (100 Byte)		nucssb0011.descripcion
+FEC_HORA_INI_EJE	C010_fec_hora_ini		DATE				hurssb0006.FEC_HORA_INI_EJE
+FECDATOS			C020_fec_datos			24/01/2013 12:54:05
+*/
 			
 			
 			
@@ -469,7 +497,21 @@ int bfnProcesar(){
 			strpcat(C2000_Buffer,"%c",delimiter);			
 			strpcat(C2000_Buffer,"%-15.15s",C010_fec_ejecucion);
 			strpcat(C2000_Buffer,"%c",delimiter);			
-			strpcat(C2000_Buffer,"%-12.12s",C010_nro_suministro);
+			strpcat(C2000_Buffer,"%-13.13s",C010_nro_suministro);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-11.11s",C010_tarifa);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-101.101s",C100_clave_tarifa);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-121.121s",C130_tipo_ejecucion);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-20.20s",C004_marca_equipo);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-21.21s",C006_cod_modelo);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-18.18s",C015_nro_equipo);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-101.101s",C100_prop_medidor);
 			
 			strpcat(C2000_Buffer,"%s","\n");
 			

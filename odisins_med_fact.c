@@ -403,6 +403,8 @@ int bfnCerrarArchivoSalida(FILE **fpOut){/**/
 int bfnProcesar(){
 	FILE	*fpMedidores=NULL;
 	char    C2000_Buffer[2001]; 	EXEC SQL VAR C2000_Buffer IS STRING(2001) ;
+	int iLecturas = 0;
+	int i = 0;
 
 
 	if (SQL_OPEN_medidores())
@@ -413,7 +415,6 @@ int bfnProcesar(){
 
 			if (SQL_OPEN_lecturas())
 			{
-				int iLecturas = 0;
 				memset(lecturas, '\0', sizeof(lecturas));
 				memset(C015_marca_aparato_2, '\0', sizeof(C015_marca_aparato_2));
 				memset(C006_cod_modelo_2, '\0', sizeof(C006_cod_modelo_2));
@@ -422,7 +423,8 @@ int bfnProcesar(){
 				memset(C004_tip_medida_2, '\0', sizeof(C004_tip_medida_2));
 				memset(C016_lectura_2, '\0', sizeof(C016_lectura_2));
 				memset(C013_consumo_2, 	'\0', sizeof(C013_consumo_2));
-
+				iLecturas=0;
+				
 				while (SQL_FETCH_lecturas())
 				{
 					strcpy(lecturas[iLecturas%4].C004_tip_medida_2, C004_tip_medida_2);
@@ -430,7 +432,6 @@ int bfnProcesar(){
 					strcpy(lecturas[iLecturas%4].C013_consumo_2, C013_consumo_2);
 					iLecturas++;
 				}
-				
 				
 			}
 			
@@ -470,6 +471,15 @@ int bfnProcesar(){
 				strpcat(C2000_Buffer,"%-21.21s","Modelo Med Facturado");
 				strpcat(C2000_Buffer,"%c",delimiter);
 				strpcat(C2000_Buffer,"%-17.17s","Medidor Facturado");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-14.14s","Fecha Lectura");
+				
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-14.14s","Tipo Medida 1");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-17.17s","Lectura  1");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-13.13s","Consumo   1");
 
 				strpcat(C2000_Buffer,"%s","\n");
 								
@@ -501,8 +511,6 @@ CONSUMO				NUMBER (13,3)			C013_consumo_2[14]
 */			
 			
 			
-			
-
 			/* Archivo de lecturas */
 			strpcat(C2000_Buffer,"%-15.15s",C015_nro_ord_norm);
 			strpcat(C2000_Buffer,"%c",delimiter);
@@ -531,7 +539,18 @@ CONSUMO				NUMBER (13,3)			C013_consumo_2[14]
 			strpcat(C2000_Buffer,"%-21.21s",C006_cod_modelo_2);
 			strpcat(C2000_Buffer,"%c",delimiter);			
 			strpcat(C2000_Buffer,"%-17.17s",C015_nro_aparato_2);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-14.14s",C010_fec_evento_2);
 			
+			for(i=0; i<iLecturas; i++){
+				strpcat(C2000_Buffer,"%c",delimiter);			
+				strpcat(C2000_Buffer,"%-14.14s",lecturas[i%4].C004_tip_medida_2);
+				strpcat(C2000_Buffer,"%c",delimiter);			
+				strpcat(C2000_Buffer,"%-17.17s",lecturas[i%4].C016_lectura_2);
+				strpcat(C2000_Buffer,"%c",delimiter);			
+				strpcat(C2000_Buffer,"%-13.13s",lecturas[i%4].C013_consumo_2);
+
+			}
 			strpcat(C2000_Buffer,"%s","\n");
 			
 			

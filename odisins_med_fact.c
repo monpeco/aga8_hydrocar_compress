@@ -1,8 +1,8 @@
 /* -----------------------------------------------------------------------------  */
 /* PROGRAMA		    : odisins_med_fact.pc                                         */
-/* DESCRIPCION		:                                                             */
-/* AUTOR		    :                                                             */
-/* FECHA		    : Octubre 2016.                                               */
+/* DESCRIPCION		: Cambios de Medidores, asociados a la primera facturación    */
+/* AUTOR		    : AM                                                          */
+/* FECHA		    : 20 Octubre 2016.                                            */
 /* ------------------------------------------------------------------------------ */
 
 #include <SYNString.h>
@@ -37,13 +37,6 @@ struct lectura lecturas[4];
 /* Constantes interacción db */
 #define NODATAFOUND 1403
 #define SQLNOTFOUND ( sqlca.sqlcode == NODATAFOUND )
-#define NOTLOGGEDON 1012
-#define SQLNOTLOGON ( sqlca.sqlcode == NOTLOGGEDON )
-#define SQLOKDATA	( sqlca.sqlerrd[2] == 1 )
-
-/* Variables interactuan con archivo plano */
-#define	TAM_REGISTRO		  100	
-#define	CANT_REG_ARCHIVO	20000
 
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras datos medidores */
@@ -70,26 +63,32 @@ char C004_tip_medida_2[5] 			; 		EXEC SQL VAR C004_tip_medida_2 		IS STRING(5) 	
 char C016_lectura_2[17] 			; 		EXEC SQL VAR C016_lectura_2			IS STRING(17) 	;
 char C013_consumo_2[14] 			; 		EXEC SQL VAR C013_consumo_2			IS STRING(14) 	;
 
+
+/* Variables Uso Email */
+char C1024_from_name[1024]					; EXEC SQL VAR C1024_from_name			IS STRING(1024);
+char c1024_from_email[1024]					; EXEC SQL VAR c1024_from_email			IS STRING(1024);
+char C1024_to_name[1024]					; EXEC SQL VAR C1024_to_name			IS STRING(1024);
+char C1024_to_email[1024]					; EXEC SQL VAR C1024_to_email			IS STRING(1024);
+char C1024_cc_email[1024]					; EXEC SQL VAR C1024_cc_email			IS STRING(1024);
+char C1024_cco_email[1024]					; EXEC SQL VAR C1024_cco_email			IS STRING(1024);
+char C1024_subject[1024]					; EXEC SQL VAR C1024_subject			IS STRING(1024);
+char C2048_body[2048]						; EXEC SQL VAR C2048_body				IS STRING(2048);
+char C1024_email[1024]						; EXEC SQL VAR C1024_email				IS STRING(1024);
+char C050_param_adj[51]						; EXEC SQL VAR C050_param_adj			IS STRING(51);
+
+
 /* Variables generales CHAR */
 char	C255_nom_file[256]		;	 		EXEC SQL VAR C255_nom_file		IS STRING(256)	;
 
-
-	/*
-	MARCA_APARATO		NUMBER (15)
-	COD_MODELO			VARCHAR2 (6 Byte)
-	NRO_APARATO			NUMBER (15)
-	FEC_EVENTO			DATE
-	
-	TIP_MEDIDA			VARCHAR2 (4 Byte)
-	LECTURA				NUMBER (16,6)
-	CONSUMO				NUMBER (13,3)
-	*/
 EXEC SQL END DECLARE SECTION;
 
 /* Variables Uso General */
 int iCountLeidos=0;
 int iCountUpd=0;
 int iCountRechz=0;
+int flag_email=FALSE;
+
+
 
 /*************************************************************************/
 /* Concatena buffer con variables incluidas                              */
@@ -208,21 +207,6 @@ int SQL_FETCH_medidores(){
 		INTO :C015_nro_ord_norm,:C004_tipo_orden,:C010_fec_ejecucion,:C010_nro_suministro,:C010_tarifa,
 		:C100_clave_tarifa,:C130_tipo_ejecucion,:C004_marca_equipo,:C006_cod_modelo,:C015_nro_equipo,
 		:C100_prop_medidor,:C010_fec_hora_ini,:C020_fec_datos;
-/*	
-NRO_ORD_NORM 	C015_nro_ord_norm	NUMBER (15)
-TIPOORDEN		C004_tipo_orden		char 4
-FECEJECUCION	C010_fec_ejecucion	date
-NRO_SUMINISTRO	C010_nro_suministro	NUMBER (10)
-TARIFA			C010_tarifa				CHAR (10 Byte)
-CLAVETARIFA		C100_clave_tarifa		VARCHAR2 (100 Byte)		nucssb0011.descripcion
-TIPOEJEC		C130_tipo_ejecucion		VARCHAR2 (20 Byte) + 3 + VARCHAR2 (100 Byte)		NUCSSB0011.VALOR1 + NUCSSB0011.DESCRIPCION
-MARCA_EQUIPO	C004_marca_equipo		CHAR (4 Byte)		hurssb0009.marca_equipo
-COD_MODELO		C006_cod_modelo			VARCHAR2 (6 Byte)	hurssb0009.COD_MODELO
-NRO_EQUIPO		C015_nro_equipo			NUMBER (15) 		hurssb0009.nro_equipo
-PROPMEDIDOR		C100_prop_medidor		VARCHAR2 (100 Byte)		nucssb0011.descripcion
-FEC_HORA_INI_EJE	C010_fec_hora_ini		DATE				hurssb0006.FEC_HORA_INI_EJE
-FECDATOS			C020_fec_datos			24/01/2013 12:54:05
-*/
 
     iRet = do_error("FETCH cur_medidores (SQL_FETCH_medidores)");
     if ( iRet == TRUE )
@@ -397,6 +381,78 @@ int bfnCerrarArchivoSalida(FILE **fpOut){/**/
 }
 
 
+/* Obtiene los parametros desde rol.email ademas los datos duros     */
+int SQL_parametros_main_email(){
+
+	EXEC SQL 
+		SELECT DISTINCT EMAIL
+		INTO	:C1024_to_email
+		FROM 	ROL
+		WHERE 	ROL = :C007_par_rol;
+	do_error("Select ROL - SQL_parametros_main_email()");
+		
+	if (SQLNOTFOUND){flag_email=FALSE;}
+	else{flag_email=TRUE;}
+		
+	strcpy(C1024_from_name, "noreply");
+	strcpy(c1024_from_email, "no-reply@chilectra.cl");
+	strcpy(C1024_subject, "Informe Cambios de Medidores asociados a la primera facturación");
+	strpcat(C2048_body, "Estimado Usuario.\nHa finalizado la ejecución del Informe. Se generó archivo %s \n", C255_nom_file);
+		
+		if(DEBUG){
+			printf("------------------------------------------------------\n");
+			printf("DEBUG[SQL_parametros_main_email]\n");
+			printf("Resultado Query: %s,%s,%s,%s,%s\n",C1024_from_name,c1024_from_email,C1024_to_email,C1024_subject,C2048_body);
+			printf("------------------------------------------------------\n\n");
+		}
+		
+	return ( TRUE );
+}
+
+/* Obtiene parametros del correo                                     */
+int SQL_parametros_email(){
+
+	memset(C1024_from_name, '\0', sizeof(C1024_from_name));
+	memset(c1024_from_email, '\0', sizeof(c1024_from_email));
+	memset(C1024_to_name, '\0', sizeof(C1024_to_name));
+	memset(C1024_to_email, '\0', sizeof(C1024_to_email));
+	memset(C1024_cc_email, '\0', sizeof(C1024_cc_email));
+	memset(C1024_cco_email, '\0', sizeof(C1024_cco_email));
+	memset(C1024_subject, '\0', sizeof(C1024_subject));
+	memset(C2048_body, '\0', sizeof(C2048_body));
+
+	SQL_parametros_main_email();
+	
+	if(!flag_email) return ( FALSE );
+
+	return ( TRUE );
+}
+
+/* Envia email segun parametros de configuracion                     */
+int ifnSendEmail()
+{
+	if(!SQL_parametros_email())
+		return ( FALSE );
+
+	correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
+	correo_body(C2048_body);
+
+	if (!correo_enviar())
+	{
+		printf(correo_error);
+		return ( FALSE );
+	}
+
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[ifnSendEmail]\n");
+		printf("Resultado OK\n");
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
+
 /* ------------------------------------------------------------------------- */
 /*                        PROCESAMIENTO DE DATOS                                */
 /* ------------------------------------------------------------------------- */
@@ -406,13 +462,12 @@ int bfnProcesar(){
 	int iLecturas = 0;
 	int i = 0;
 
-
 	if (SQL_OPEN_medidores())
 	{
 		while (SQL_FETCH_medidores())
 		{
-		memset(C2000_Buffer, '\0', sizeof(C2000_Buffer));
-
+			memset(C2000_Buffer, '\0', sizeof(C2000_Buffer));
+			
 			if (SQL_OPEN_lecturas())
 			{
 				memset(lecturas, '\0', sizeof(lecturas));
@@ -480,36 +535,22 @@ int bfnProcesar(){
 				strpcat(C2000_Buffer,"%-17.17s","Lectura  1");
 				strpcat(C2000_Buffer,"%c",delimiter);
 				strpcat(C2000_Buffer,"%-13.13s","Consumo   1");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-14.14s","Tipo Medida 2");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-17.17s","Lectura  2");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-13.13s","Consumo   2");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-14.14s","Tipo Medida 3");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-17.17s","Lectura  3");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-13.13s","Consumo   3");
 
 				strpcat(C2000_Buffer,"%s","\n");
 								
 			}
-/*	
-NRO_ORD_NORM 	C015_nro_ord_norm	NUMBER (15)
-TIPOORDEN		C004_tipo_orden		char 4
-FECEJECUCION	C010_fec_ejecucion	date
-NRO_SUMINISTRO	C010_nro_suministro	NUMBER (10)
-TARIFA			C010_tarifa				CHAR (10 Byte)
-CLAVETARIFA		C100_clave_tarifa		VARCHAR2 (100 Byte)		nucssb0011.descripcion
-TIPOEJEC		C130_tipo_ejecucion		VARCHAR2 (20 Byte) + 3 + VARCHAR2 (100 Byte)		NUCSSB0011.VALOR1 + NUCSSB0011.DESCRIPCION
-MARCA_EQUIPO	C004_marca_equipo		CHAR (4 Byte)		hurssb0009.marca_equipo
-COD_MODELO		C006_cod_modelo			VARCHAR2 (6 Byte)	hurssb0009.COD_MODELO
-NRO_EQUIPO		C015_nro_equipo			NUMBER (15) 		hurssb0009.nro_equipo
-PROPMEDIDOR		C100_prop_medidor		VARCHAR2 (100 Byte)		nucssb0011.descripcion
-FEC_HORA_INI_EJE	C010_fec_hora_ini		DATE				hurssb0006.FEC_HORA_INI_EJE
-FECDATOS			C020_fec_datos			24/01/2013 12:54:05
-*/
-/*
-MARCA_APARATO		NUMBER (15)				C015_marca_aparato_2[16] 
-COD_MODELO			VARCHAR2 (6 Byte)		C006_cod_modelo_2[7] 
-NRO_APARATO			NUMBER (15)				C015_nro_aparato_2[16]
-FEC_EVENTO			DATE					C010_fec_evento_2[11] 
-
-TIP_MEDIDA			VARCHAR2 (4 Byte)		C004_tip_medida_2[5]
-LECTURA				NUMBER (16,6)			C016_lectura_2[17] 
-CONSUMO				NUMBER (13,3)			C013_consumo_2[14]
-*/			
-			
 			
 			/* Archivo de lecturas */
 			strpcat(C2000_Buffer,"%-15.15s",C015_nro_ord_norm);
@@ -553,13 +594,16 @@ CONSUMO				NUMBER (13,3)			C013_consumo_2[14]
 			}
 			strpcat(C2000_Buffer,"%s","\n");
 			
-			
 			bfnAgregarArchivoSalida(fpMedidores,C2000_Buffer);
 			/* Fin archivo de normalizaciones */
 
 		}
-		bfnCerrarArchivoSalida(&fpMedidores);
 		
+		if(flag_records)
+		{
+			bfnCerrarArchivoSalida(&fpMedidores);
+			ifnSendEmail();
+		}		
 	}
 		
 	return ( TRUE );

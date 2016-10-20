@@ -297,14 +297,6 @@ int SQL_OPEN_lecturas(){
 int SQL_FETCH_lecturas(){
 	int		iRet;
 
-	memset(C015_marca_aparato_2, '\0', sizeof(C015_marca_aparato_2));
-	memset(C006_cod_modelo_2, '\0', sizeof(C006_cod_modelo_2));
-	memset(C015_nro_aparato_2, '\0', sizeof(C015_nro_aparato_2));
-	memset(C010_fec_evento_2, '\0', sizeof(C010_fec_evento_2));
-	memset(C004_tip_medida_2, '\0', sizeof(C004_tip_medida_2));
-	memset(C016_lectura_2, '\0', sizeof(C016_lectura_2));
-	memset(C013_consumo_2, 	'\0', sizeof(C013_consumo_2));
-
     EXEC SQL 
 		FETCH cur_lecturas 
 		INTO :C015_marca_aparato_2,:C006_cod_modelo_2,:C015_nro_aparato_2,:C010_fec_evento_2,
@@ -398,7 +390,6 @@ int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
 	return ( TRUE );
 }
 
-
 int bfnCerrarArchivoSalida(FILE **fpOut){/**/
 	fclose ( *fpOut );
 
@@ -424,6 +415,13 @@ int bfnProcesar(){
 			{
 				int iLecturas = 0;
 				memset(lecturas, '\0', sizeof(lecturas));
+				memset(C015_marca_aparato_2, '\0', sizeof(C015_marca_aparato_2));
+				memset(C006_cod_modelo_2, '\0', sizeof(C006_cod_modelo_2));
+				memset(C015_nro_aparato_2, '\0', sizeof(C015_nro_aparato_2));
+				memset(C010_fec_evento_2, '\0', sizeof(C010_fec_evento_2));
+				memset(C004_tip_medida_2, '\0', sizeof(C004_tip_medida_2));
+				memset(C016_lectura_2, '\0', sizeof(C016_lectura_2));
+				memset(C013_consumo_2, 	'\0', sizeof(C013_consumo_2));
 
 				while (SQL_FETCH_lecturas())
 				{
@@ -466,6 +464,12 @@ int bfnProcesar(){
 				strpcat(C2000_Buffer,"%-18.18s","Medidor instalado");
 				strpcat(C2000_Buffer,"%c",delimiter);
 				strpcat(C2000_Buffer,"%-101.101s","Propiedad Medidor");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-21.21s","Marca Med Facturado");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-21.21s","Modelo Med Facturado");
+				strpcat(C2000_Buffer,"%c",delimiter);
+				strpcat(C2000_Buffer,"%-17.17s","Medidor Facturado");
 
 				strpcat(C2000_Buffer,"%s","\n");
 								
@@ -485,7 +489,16 @@ PROPMEDIDOR		C100_prop_medidor		VARCHAR2 (100 Byte)		nucssb0011.descripcion
 FEC_HORA_INI_EJE	C010_fec_hora_ini		DATE				hurssb0006.FEC_HORA_INI_EJE
 FECDATOS			C020_fec_datos			24/01/2013 12:54:05
 */
-			
+/*
+MARCA_APARATO		NUMBER (15)				C015_marca_aparato_2[16] 
+COD_MODELO			VARCHAR2 (6 Byte)		C006_cod_modelo_2[7] 
+NRO_APARATO			NUMBER (15)				C015_nro_aparato_2[16]
+FEC_EVENTO			DATE					C010_fec_evento_2[11] 
+
+TIP_MEDIDA			VARCHAR2 (4 Byte)		C004_tip_medida_2[5]
+LECTURA				NUMBER (16,6)			C016_lectura_2[17] 
+CONSUMO				NUMBER (13,3)			C013_consumo_2[14]
+*/			
 			
 			
 			
@@ -512,6 +525,12 @@ FECDATOS			C020_fec_datos			24/01/2013 12:54:05
 			strpcat(C2000_Buffer,"%-18.18s",C015_nro_equipo);
 			strpcat(C2000_Buffer,"%c",delimiter);			
 			strpcat(C2000_Buffer,"%-101.101s",C100_prop_medidor);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-21.21s",C015_marca_aparato_2);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-21.21s",C006_cod_modelo_2);
+			strpcat(C2000_Buffer,"%c",delimiter);			
+			strpcat(C2000_Buffer,"%-17.17s",C015_nro_aparato_2);
 			
 			strpcat(C2000_Buffer,"%s","\n");
 			

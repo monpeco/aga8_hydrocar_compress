@@ -31,10 +31,34 @@ char C010_par_fec_fin[11];
 
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras datos medidores */
+/*
+Nro. Orden			NroOrden			NRO_ORD_NORM			NUMBER (15)
+Nro. Cliente		Cliente				NRO_SUMINISTRO			NUMBER (10)
+Tarifa				Tarifa				CAMPO19					CHAR (10 Byte)
+Clave tarifa		ClaveTarifa			DESCRIPCION				VARCHAR2 (100 Byte)
+Comuna				Comuna				DESCRIPCION				VARCHAR2 (100 Byte)
+Tipo Ejecución		TipoEjec			VALOR1 + DESCRIPCION	VARCHAR2 (20 Byte) + VARCHAR2 (100 Byte)
+Contratista			Contratista			NOM_CONTRATISTA			VARCHAR2 (45 Byte)
+Tipo Resultado		Resultado			DESCRIPCION				VARCHAR2 (100 Byte)
+Estado Propiedad	EstPropiedad		NOM_ACCION				VARCHAR2 (100 Byte)
+Anormalidad			Anormalidad			h3.nom_accion			VARCHAR2 (50 Byte)
+Tarea Ejecutada		h8.ejecutada		EJECUTADA				CHAR (1 Byte)
+Tipo Tarea 			h3.cod_tarea		COD_TAREA				CHAR (4 Byte)
+Fecha de ejecución	FecEjecucion		FEC_HORA_FIN_EJE		DATE
+Fecha creación		FecCreacion			FEC_CREACION			DATE
+Fecha Asignación	FecAsignacion		FEC_ASIGNACION			DATE
+Fecha de envío		FecEnvio 			FEC_ENVIO				DATE	(agregado)
+Fecha Finalización	FecFinalizada		FEC_TER_ORD				DATE
+Fecha Atendida		FecAtendida			FEC_INGRESO_DATOS		DATE
+Observación			observaciones		OBSERVACIONES			VARCHAR2 (2000 Byte)
+fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje		DATE
+*/
+
 char C015_nro_ord_norm[16] 		; 		EXEC SQL VAR C015_nro_ord_norm 		IS STRING(16) 	;
+char C010_nro_suministro[11] 	; 		EXEC SQL VAR C010_nro_suministro 	IS STRING(11) 	;
+
 char C004_tipo_orden[5] 		; 		EXEC SQL VAR C004_tipo_orden 		IS STRING(5) 	;
 char C010_fec_ejecucion[11] 	; 		EXEC SQL VAR C010_fec_ejecucion 	IS STRING(11) 	;
-char C010_nro_suministro[11] 	; 		EXEC SQL VAR C010_nro_suministro 	IS STRING(11) 	;
 char C010_tarifa[11] 			; 		EXEC SQL VAR C010_tarifa 			IS STRING(11) 	;
 char C100_clave_tarifa[101] 	; 		EXEC SQL VAR C100_clave_tarifa 		IS STRING(101) 	;
 char C130_tipo_ejecucion[131] 	; 		EXEC SQL VAR C130_tipo_ejecucion 	IS STRING(131) 	;
@@ -243,7 +267,7 @@ int bfnProcesar(){
 /* ------------------------------------------------------------------------- */
 main(int argc,char **argv)
 {
-   if( argc != 6)
+   if( argc != 7)
     {
 	printf("Use : %s <N° Conexion> <Empresa> <Rol> <Tipo de Tarea> <FecInicio> <FecFin> \n",argv[0]);
 	exit(1);

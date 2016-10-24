@@ -1,9 +1,9 @@
-/* -----------------------------------------------------------------------------  */
-/* PROGRAMA		    : odisins_tareas.pc                                           */
-/* DESCRIPCION		: Órdenes de Normalización con tareas de medidor y empalme    */
-/* AUTOR		    : AM                                                          */
-/* FECHA		    : Octubre 2016.                                            */
-/* ------------------------------------------------------------------------------ */
+/* -----------------------------------------------------------------------------	*/
+/* PROGRAMA			: odisins_tareas.pc												*/
+/* DESCRIPCION		: Órdenes de Normalización con tareas de medidor y empalme		*/
+/* AUTOR			: AM															*/
+/* FECHA			: Octubre 2016.													*/
+/* ------------------------------------------------------------------------------	*/
 
 #include <SYNString.h>
 #include <api_correo.h>			
@@ -32,51 +32,52 @@ char C010_par_fec_fin[11];
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras datos medidores */
 /*
-Nro. Orden			NroOrden			NRO_ORD_NORM			NUMBER (15)
-Nro. Cliente		Cliente				NRO_SUMINISTRO			NUMBER (10)
-Tarifa				Tarifa				CAMPO19					CHAR (10 Byte)
-Clave tarifa		ClaveTarifa			DESCRIPCION				VARCHAR2 (100 Byte)
-Comuna				Comuna				DESCRIPCION				VARCHAR2 (100 Byte)
-Tipo Ejecución		TipoEjec			VALOR1 + DESCRIPCION	VARCHAR2 (20 Byte) + VARCHAR2 (100 Byte)
-Contratista			Contratista			NOM_CONTRATISTA			VARCHAR2 (45 Byte)
-Tipo Resultado		Resultado			DESCRIPCION				VARCHAR2 (100 Byte)
-Estado Propiedad	EstPropiedad		NOM_ACCION				VARCHAR2 (100 Byte)
-Anormalidad			Anormalidad			h3.nom_accion			VARCHAR2 (50 Byte)
-Tarea Ejecutada		h8.ejecutada		EJECUTADA				CHAR (1 Byte)
-Tipo Tarea 			h3.cod_tarea		COD_TAREA				CHAR (4 Byte)
-Fecha de ejecución	FecEjecucion		FEC_HORA_FIN_EJE		DATE
-Fecha creación		FecCreacion			FEC_CREACION			DATE
-Fecha Asignación	FecAsignacion		FEC_ASIGNACION			DATE
-Fecha de envío		FecEnvio 			FEC_ENVIO				DATE	(agregado)
-Fecha Finalización	FecFinalizada		FEC_TER_ORD				DATE
-Fecha Atendida		FecAtendida			FEC_INGRESO_DATOS		DATE
-Observación			observaciones		OBSERVACIONES			VARCHAR2 (2000 Byte)
-fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje		DATE
+C015_nro_ord_norm	Nro. Orden			NroOrden			NRO_ORD_NORM			NUMBER (15)
+C010_nro_suministro		Nro. Cliente		Cliente				NRO_SUMINISTRO			NUMBER (10)
+C010_tarifa				Tarifa				Tarifa				CAMPO19					CHAR (10 Byte)
+C100_clave_tarifa		Clave tarifa		ClaveTarifa			DESCRIPCION				VARCHAR2 (100 Byte)
+C100_comuna				Comuna				Comuna				DESCRIPCION				VARCHAR2 (100 Byte)
+C120_tipo_ejecucion		Tipo Ejecución		TipoEjec			VALOR1 + DESCRIPCION	VARCHAR2 (20 Byte) + VARCHAR2 (100 Byte)
+C045_contratista		Contratista			Contratista			NOM_CONTRATISTA			VARCHAR2 (45 Byte)
+C100_tipo_resultado		Tipo Resultado		Resultado			DESCRIPCION				VARCHAR2 (100 Byte)
+C100_estado_propiedad	Estado Propiedad	EstPropiedad		NOM_ACCION				VARCHAR2 (100 Byte)
+C050_anormalidad		Anormalidad			Anormalidad			h3.nom_accion			VARCHAR2 (50 Byte)
+C001_tarea_ejecutada	Tarea Ejecutada		h8.ejecutada		EJECUTADA				CHAR (1 Byte)
+C004_tipo_tarea			Tipo Tarea 			h3.cod_tarea		COD_TAREA				CHAR (4 Byte)
+C010_fec_ejecucion		Fecha de ejecución	FecEjecucion		FEC_HORA_FIN_EJE		DATE
+C010_fec_creacion		Fecha creación		FecCreacion			FEC_CREACION			DATE
+C010_fec_asignacion		Fecha Asignación	FecAsignacion		FEC_ASIGNACION			DATE
+C010_fec_envio			Fecha de envío		FecEnvio 			FEC_ENVIO				DATE	(agregado)
+C010_fec_finalizacion	Fecha Finalización	FecFinalizada		FEC_TER_ORD				DATE
+C010_fec_atendida		Fecha Atendida		FecAtendida			FEC_INGRESO_DATOS		DATE
+C2000_observaciones		Observación			observaciones		OBSERVACIONES			VARCHAR2 (2000 Byte)
+C010_fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje		DATE
+C010_fec_devoluc_prev	FecDevPrev			fec_devoluc_prev	fec_devoluc_prev		DATE
 */
 
-char C015_nro_ord_norm[16] 		; 		EXEC SQL VAR C015_nro_ord_norm 		IS STRING(16) 	;
-char C010_nro_suministro[11] 	; 		EXEC SQL VAR C010_nro_suministro 	IS STRING(11) 	;
+char C015_nro_ord_norm[16]		;		EXEC SQL VAR C015_nro_ord_norm 		IS STRING(16) 	;
+char C010_nro_suministro[11]	;		EXEC SQL VAR C010_nro_suministro 	IS STRING(11) 	;
+char C010_tarifa[11]			;		EXEC SQL VAR C010_tarifa 			IS STRING(11) 	;
+char C100_clave_tarifa[101]		;		EXEC SQL VAR C100_clave_tarifa 		IS STRING(101) 	;
+char C100_comuna[101]			;		EXEC SQL VAR C100_comuna 			IS STRING(101) 	;
+char C120_tipo_ejecucion[121]	;		EXEC SQL VAR C120_tipo_ejecucion 	IS STRING(121) 	;
+char C045_contratista[46]		;		EXEC SQL VAR C045_contratista 		IS STRING(46) 	;
+char C100_tipo_resultado[101]	;		EXEC SQL VAR C100_tipo_resultado 	IS STRING(101) 	;
+char C100_estado_propiedad[101]	;		EXEC SQL VAR C100_estado_propiedad 	IS STRING(101) 	;
+char C050_anormalidad[51]		;		EXEC SQL VAR C050_anormalidad 		IS STRING(51) 	;
+char C001_tarea_ejecutada[2]	;		EXEC SQL VAR C001_tarea_ejecutada 	IS STRING(2) 	;
+char C004_tipo_tarea[5]			;		EXEC SQL VAR C004_tipo_tarea 		IS STRING(5) 	;
+char C010_fec_ejecucion[11]		;		EXEC SQL VAR C010_fec_ejecucion 	IS STRING(11) 	;
+char C010_fec_creacion[11]		;		EXEC SQL VAR C010_fec_creacion 		IS STRING(11) 	;
+char C010_fec_asignacion[11]	;		EXEC SQL VAR C010_fec_asignacion 	IS STRING(11) 	;
+char C010_fec_envio[11]			;		EXEC SQL VAR C010_fec_envio 		IS STRING(11) 	;
+char C010_fec_finalizacion[11]	;		EXEC SQL VAR C010_fec_finalizacion 	IS STRING(11) 	;
+char C010_fec_atendida[11]		;		EXEC SQL VAR C010_fec_atendida 		IS STRING(11) 	;
+char C2000_observaciones[2001]	;		EXEC SQL VAR C2000_observaciones 	IS STRING(2001) ;
 
-char C004_tipo_orden[5] 		; 		EXEC SQL VAR C004_tipo_orden 		IS STRING(5) 	;
-char C010_fec_ejecucion[11] 	; 		EXEC SQL VAR C010_fec_ejecucion 	IS STRING(11) 	;
-char C010_tarifa[11] 			; 		EXEC SQL VAR C010_tarifa 			IS STRING(11) 	;
-char C100_clave_tarifa[101] 	; 		EXEC SQL VAR C100_clave_tarifa 		IS STRING(101) 	;
-char C130_tipo_ejecucion[131] 	; 		EXEC SQL VAR C130_tipo_ejecucion 	IS STRING(131) 	;
-char C004_marca_equipo[5] 		; 		EXEC SQL VAR C004_marca_equipo 		IS STRING(5) 	;
-char C006_cod_modelo[7] 		; 		EXEC SQL VAR C006_cod_modelo 		IS STRING(7) 	;
-char C015_nro_equipo[16] 		; 		EXEC SQL VAR C015_nro_equipo 		IS STRING(16) 	;
-char C100_prop_medidor[101] 	; 		EXEC SQL VAR C100_prop_medidor 		IS STRING(101) 	;
-char C010_fec_hora_ini[11] 		; 		EXEC SQL VAR C010_fec_hora_ini 		IS STRING(11) 	;
-char C020_fec_datos[21] 		; 		EXEC SQL VAR C020_fec_datos 		IS STRING(21) 	;
+char C010_fec_hora_ini_eje[11]	;		EXEC SQL VAR C010_fec_hora_ini_eje 	IS STRING(11) 	;
+char C010_fec_devoluc_prev[11]	;		EXEC SQL VAR C010_fec_devoluc_prev 	IS STRING(11) 	;
 
-/* Declaracion estructuras datos lecturas */
-char C015_marca_aparato_2[16] 		; 		EXEC SQL VAR C015_marca_aparato_2 	IS STRING(16) 	;
-char C006_cod_modelo_2[7] 			; 		EXEC SQL VAR C006_cod_modelo_2 		IS STRING(7) 	;
-char C015_nro_aparato_2[16] 		; 		EXEC SQL VAR C015_nro_aparato_2		IS STRING(16) 	;
-char C010_fec_evento_2[11] 			; 		EXEC SQL VAR C010_fec_evento_2 		IS STRING(11) 	;
-char C004_tip_medida_2[5] 			; 		EXEC SQL VAR C004_tip_medida_2 		IS STRING(5) 	;
-char C016_lectura_2[17] 			; 		EXEC SQL VAR C016_lectura_2			IS STRING(17) 	;
-char C013_consumo_2[14] 			; 		EXEC SQL VAR C013_consumo_2			IS STRING(14) 	;
 
 
 /* Variables Uso Email */
@@ -205,24 +206,59 @@ int SQL_FETCH_medidores(){
 	int		iRet;
 
 	memset(C015_nro_ord_norm, 	'\0', sizeof(C015_nro_ord_norm));
-	memset(C004_tipo_orden, '\0', sizeof(C004_tipo_orden));
-	memset(C010_fec_ejecucion, '\0', sizeof(C010_fec_ejecucion));
 	memset(C010_nro_suministro, '\0', sizeof(C010_nro_suministro));
 	memset(C010_tarifa, '\0', sizeof(C010_tarifa));
 	memset(C100_clave_tarifa, '\0', sizeof(C100_clave_tarifa));
-	memset(C130_tipo_ejecucion, 	'\0', sizeof(C130_tipo_ejecucion));
-	memset(C004_marca_equipo, '\0', sizeof(C004_marca_equipo));
-	memset(C006_cod_modelo, '\0', sizeof(C006_cod_modelo));
-	memset(C015_nro_equipo, '\0', sizeof(C015_nro_equipo));
-	memset(C100_prop_medidor, '\0', sizeof(C100_prop_medidor));
-	memset(C010_fec_hora_ini, '\0', sizeof(C010_fec_hora_ini));
-	memset(C020_fec_datos, '\0', sizeof(C020_fec_datos));
+	memset(C100_comuna, '\0', sizeof(C100_comuna));
+	memset(C120_tipo_ejecucion, '\0', sizeof(C120_tipo_ejecucion));
+	memset(C045_contratista, '\0', sizeof(C045_contratista));
+	memset(C100_tipo_resultado, '\0', sizeof(C100_tipo_resultado));
+	memset(C100_estado_propiedad, '\0', sizeof(C100_estado_propiedad));
+	memset(C050_anormalidad, '\0', sizeof(C050_anormalidad));
+	memset(C001_tarea_ejecutada, '\0', sizeof(C001_tarea_ejecutada));
+	memset(C004_tipo_tarea, '\0', sizeof(C004_tipo_tarea));
+	memset(C010_fec_ejecucion, '\0', sizeof(C010_fec_ejecucion));
+	memset(C010_fec_creacion, '\0', sizeof(C010_fec_creacion));
+	memset(C010_fec_asignacion, '\0', sizeof(C010_fec_asignacion));
+	memset(C010_fec_envio, '\0', sizeof(C010_fec_envio));
+	memset(C010_fec_finalizacion, '\0', sizeof(C010_fec_finalizacion));
+	memset(C010_fec_atendida, '\0', sizeof(C010_fec_atendida));
+	memset(C2000_observaciones, '\0', sizeof(C2000_observaciones));
+	memset(C010_fec_hora_ini_eje, '\0', sizeof(C010_fec_hora_ini_eje));
+	memset(C010_fec_devoluc_prev, '\0', sizeof(C010_fec_devoluc_prev));
+	
+
+/*
+C015_nro_ord_norm	Nro. Orden			NroOrden			NRO_ORD_NORM			NUMBER (15)
+C010_nro_suministro		Nro. Cliente		Cliente				NRO_SUMINISTRO			NUMBER (10)
+C010_tarifa				Tarifa				Tarifa				CAMPO19					CHAR (10 Byte)
+C100_clave_tarifa		Clave tarifa		ClaveTarifa			DESCRIPCION				VARCHAR2 (100 Byte)
+C100_comuna				Comuna				Comuna				DESCRIPCION				VARCHAR2 (100 Byte)
+C120_tipo_ejecucion		Tipo Ejecución		TipoEjec			VALOR1 + DESCRIPCION	VARCHAR2 (20 Byte) + VARCHAR2 (100 Byte)
+C045_contratista		Contratista			Contratista			NOM_CONTRATISTA			VARCHAR2 (45 Byte)
+C100_tipo_resultado		Tipo Resultado		Resultado			DESCRIPCION				VARCHAR2 (100 Byte)
+C100_estado_propiedad	Estado Propiedad	EstPropiedad		NOM_ACCION				VARCHAR2 (100 Byte)
+C050_anormalidad		Anormalidad			Anormalidad			h3.nom_accion			VARCHAR2 (50 Byte)
+C001_tarea_ejecutada	Tarea Ejecutada		h8.ejecutada		EJECUTADA				CHAR (1 Byte)
+C004_tipo_tarea			Tipo Tarea 			h3.cod_tarea		COD_TAREA				CHAR (4 Byte)
+C010_fec_ejecucion		Fecha de ejecución	FecEjecucion		FEC_HORA_FIN_EJE		DATE
+C010_fec_creacion		Fecha creación		FecCreacion			FEC_CREACION			DATE
+C010_fec_asignacion		Fecha Asignación	FecAsignacion		FEC_ASIGNACION			DATE
+C010_fec_envio			Fecha de envío		FecEnvio 			FEC_ENVIO				DATE	(agregado)
+C010_fec_finalizacion	Fecha Finalización	FecFinalizada		FEC_TER_ORD				DATE
+C010_fec_atendida		Fecha Atendida		FecAtendida			FEC_INGRESO_DATOS		DATE
+C2000_observaciones		Observación			observaciones		OBSERVACIONES			VARCHAR2 (2000 Byte)
+C010_fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje		DATE
+C010_fec_devoluc_prev	FecDevPrev			fec_devoluc_prev	fec_devoluc_prev		DATE
+*/
 
     EXEC SQL 
 		FETCH cur_medidores 
-		INTO :C015_nro_ord_norm,:C004_tipo_orden,:C010_fec_ejecucion,:C010_nro_suministro,:C010_tarifa,
-		:C100_clave_tarifa,:C130_tipo_ejecucion,:C004_marca_equipo,:C006_cod_modelo,:C015_nro_equipo,
-		:C100_prop_medidor,:C010_fec_hora_ini,:C020_fec_datos;
+		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_comuna
+		,:C120_tipo_ejecucion,:C100_tipo_resultado,:C100_estado_propiedad,:C050_anormalidad,:C004_tipo_tarea
+		,:C001_tarea_ejecutada,:C010_fec_creacion,:C010_fec_asignacion,:C010_fec_envio,:C010_fec_devoluc_prev
+		,:C010_fec_ejecucion,:C010_fec_atendida,C010_fec_finalizacion,C045_contratista,:C010_fec_hora_ini_eje
+		,:C2000_observaciones;
 
     iRet = do_error("FETCH cur_medidores (SQL_FETCH_medidores)");
     if ( iRet == TRUE )

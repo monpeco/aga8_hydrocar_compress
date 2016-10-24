@@ -227,31 +227,6 @@ int SQL_FETCH_medidores(){
 	memset(C010_fec_hora_ini_eje, '\0', sizeof(C010_fec_hora_ini_eje));
 	memset(C010_fec_devoluc_prev, '\0', sizeof(C010_fec_devoluc_prev));
 	
-
-/*
-C015_nro_ord_norm	Nro. Orden			NroOrden			NRO_ORD_NORM			NUMBER (15)
-C010_nro_suministro		Nro. Cliente		Cliente				NRO_SUMINISTRO			NUMBER (10)
-C010_tarifa				Tarifa				Tarifa				CAMPO19					CHAR (10 Byte)
-C100_clave_tarifa		Clave tarifa		ClaveTarifa			DESCRIPCION				VARCHAR2 (100 Byte)
-C100_comuna				Comuna				Comuna				DESCRIPCION				VARCHAR2 (100 Byte)
-C120_tipo_ejecucion		Tipo Ejecución		TipoEjec			VALOR1 + DESCRIPCION	VARCHAR2 (20 Byte) + VARCHAR2 (100 Byte)
-C045_contratista		Contratista			Contratista			NOM_CONTRATISTA			VARCHAR2 (45 Byte)
-C100_tipo_resultado		Tipo Resultado		Resultado			DESCRIPCION				VARCHAR2 (100 Byte)
-C100_estado_propiedad	Estado Propiedad	EstPropiedad		NOM_ACCION				VARCHAR2 (100 Byte)
-C050_anormalidad		Anormalidad			Anormalidad			h3.nom_accion			VARCHAR2 (50 Byte)
-C001_tarea_ejecutada	Tarea Ejecutada		h8.ejecutada		EJECUTADA				CHAR (1 Byte)
-C004_tipo_tarea			Tipo Tarea 			h3.cod_tarea		COD_TAREA				CHAR (4 Byte)
-C010_fec_ejecucion		Fecha de ejecución	FecEjecucion		FEC_HORA_FIN_EJE		DATE
-C010_fec_creacion		Fecha creación		FecCreacion			FEC_CREACION			DATE
-C010_fec_asignacion		Fecha Asignación	FecAsignacion		FEC_ASIGNACION			DATE
-C010_fec_envio			Fecha de envío		FecEnvio 			FEC_ENVIO				DATE	(agregado)
-C010_fec_finalizacion	Fecha Finalización	FecFinalizada		FEC_TER_ORD				DATE
-C010_fec_atendida		Fecha Atendida		FecAtendida			FEC_INGRESO_DATOS		DATE
-C2000_observaciones		Observación			observaciones		OBSERVACIONES			VARCHAR2 (2000 Byte)
-C010_fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje		DATE
-C010_fec_devoluc_prev	FecDevPrev			fec_devoluc_prev	fec_devoluc_prev		DATE
-*/
-
     EXEC SQL 
 		FETCH cur_medidores 
 		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_comuna
@@ -276,13 +251,88 @@ C010_fec_devoluc_prev	FecDevPrev			fec_devoluc_prev	fec_devoluc_prev		DATE
 	else		   {return ( TRUE );}
 }
 
+int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){/**/
+	int		iRet;
+	char	C256_pat_unix[256]	; EXEC SQL VAR C256_pat_unix   IS STRING(256);
+	char	C020_fecha[20]		; EXEC SQL VAR C020_fecha	   IS STRING(20);
+	
+	memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
+	memset(C020_fecha, '\0', sizeof(C020_fecha));
+	memset(C255_nom_file, '\0', sizeof(C255_nom_file));
 
+	/* Obtiene path unix */
+	EXEC SQL 
+		SELECT trim(pat_unix)
+		INTO   :C256_pat_unix
+		FROM   NUCSSB0044
+		WHERE  NUCSSB0044.COD_EMPRESA         = :C003_par_empresa  
+		AND    trim(NUCSSB0044.COD_SISTEMA)   = 'PERD'
+		AND    trim(NUCSSB0044.CEN_OPERATIVO) = 'TOD'
+		AND    trim(NUCSSB0044.TIP_PATH)      = 'LIST';
+    iRet = do_error("Select NUCSSB0044");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+	/* Obtiene fecha del sistema */
+    EXEC SQL
+         SELECT  TO_CHAR( sysdate, 'ddmmyyyy_hh24mi' )
+         INTO    :C020_fecha
+         FROM    DUAL;
+    iRet = do_error("Select SYSDATE");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+	/* Crea archivo de salida */
+	sprintf(C255_nom_file, "%s%s%s_%s.%s", C256_pat_unix,prefix1,prefix2,C020_fecha,ext);
+	if( ( *fpOut = fopen( C255_nom_file, "w+" ) ) == NULL )
+	{
+		printf("ERR|Error al Generar Archivo <%s>. Error %s\n", 
+			   C255_nom_file, strerror(errno));
+		return ( FALSE );
+	}
+
+	//strcpy(C1024_archivo_norm,C255_nom_file); 
+
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[ifnCrearArchivoSalida]\n");
+		printf("Resultado [%s] OK\n",C255_nom_file);
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
+
+int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
+	int iRet = TRUE;
+
+	fprintf(fpOut, "%s",cBuffer);
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[ifnAgregarArchivoSalida]\n");
+		printf("[%s\n]",cBuffer);
+		printf("Resultado OK\n");
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
+
+int bfnCerrarArchivoSalida(FILE **fpOut){/**/
+	fclose ( *fpOut );
+
+	return ( TRUE );
+}
 /* ------------------------------------------------------------------------- */
 /*                        PROCESAMIENTO DE DATOS                                */
 /* ------------------------------------------------------------------------- */
 int bfnProcesar(){
 	FILE	*fpMedidores=NULL;
-	char    C2000_Buffer[2001]; 	EXEC SQL VAR C2000_Buffer IS STRING(2001) ;
+	char    C4000_Buffer[4001]; 	EXEC SQL VAR C4000_Buffer IS STRING(2001) ;
 	int iLecturas = 0;
 	int i = 0;
 
@@ -290,7 +340,103 @@ int bfnProcesar(){
 	{
 		while (SQL_FETCH_medidores())
 		{
+			memset(C4000_Buffer, '\0', sizeof(C4000_Buffer));
+			if(!flag_records)/*controla si hay registros*/
+			{
+				flag_records=TRUE;
+				if(!bfnCrearArchivoSalida(&fpMedidores,"Norm","Tareas","xls"))
+				{
+					return ( FALSE );
+				}
 
+				/* Encabezado archivo */
+				strpcat(C4000_Buffer,"%-16.16s","Nro. Orden");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-13.13s","Nro. Cliente");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-11.11s","Tarifa");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-101.101s","Clave tarifa");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-101.101s","Comuna");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-121.121s","Tipo Ejecución");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-46.46s","Contratista");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-101.101s","Tipo Resultado");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-101.101s","Estado Propiedad");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-51.51s","Anormalidad");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-16.16s","Tarea Ejecutada");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-11.11s","Tipo Tarea");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-19.19s","Fecha de ejecución");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-15.15s","Fecha creación");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-17.17s","Fecha Asignación");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-19.19s","Fecha Finalización");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-15.15s","Fecha Atendida");
+				strpcat(C4000_Buffer,"%c",delimiter);
+				strpcat(C4000_Buffer,"%-1001.1001s","Observación");
+
+				strpcat(C4000_Buffer,"%s","\n");				
+			}
+			
+			/* Archivo de lecturas */
+			strpcat(C4000_Buffer,"%-16.16s",C015_nro_ord_norm);
+			strpcat(C4000_Buffer,"%c",delimiter);
+			strpcat(C4000_Buffer,"%-13.13s",C010_nro_suministro);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-11.11s",C010_tarifa);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-101.101s",C100_clave_tarifa);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-101.101s",C100_comuna);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-121.121s",C120_tipo_ejecucion);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-46.46s",C045_contratista);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-101.101s",C100_tipo_resultado);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-101.101s",C100_estado_propiedad);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-51.51s",C050_anormalidad);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-16.16s",C001_tarea_ejecutada);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-11.11s",C004_tipo_tarea);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-19.19s",C010_fec_ejecucion);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-15.15s",C010_fec_creacion);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-17.17s",C010_fec_asignacion);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-19.19s",C010_fec_finalizacion);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-15.15s",C010_fec_atendida);
+			strpcat(C4000_Buffer,"%c",delimiter);			
+			strpcat(C4000_Buffer,"%-1001.1001s",C2000_observaciones);
+
+			strpcat(C4000_Buffer,"%s","\n");
+			
+			bfnAgregarArchivoSalida(fpMedidores,C4000_Buffer);
+			/* Fin archivo de normalizaciones */			
+				
+		}
+		
+		if(flag_records)
+		{
+			bfnCerrarArchivoSalida(&fpMedidores);
+			//ifnSendEmail();
 		}
 	
 	}
@@ -317,7 +463,7 @@ main(int argc,char **argv)
 	strcpy( C010_par_fec_fin,			argv[6] );
 
 	sql_conexion(C001_par_conexion);
-
+	//AM|quitar: r 6 1 JPSM x 20/01/2013 21/01/2013
 	
 	if(!bfnProcesar()){
 		printf("Error\n");

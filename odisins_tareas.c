@@ -175,6 +175,12 @@ SQL_OPEN_medidores(){
 	strpcat(C3000_sql_sente, " and h6.nro_suministro  = n19.nro_suministro  ");
 	strpcat(C3000_sql_sente, " and h6.cod_empresa = n19.cod_empresa ");
 	strpcat(C3000_sql_sente, " and n19.tip_dir = 'S' ");
+	
+	if (strcmp(C010_par_tipo_tarea, "TOD") != 0)
+	{
+		strpcat(C3000_sql_sente, " and h3.cod_tarea = '%s'  " , C010_par_tipo_tarea);
+	}
+	
 	strpcat(C3000_sql_sente, " order by h6.nro_ord_norm \n");
 		
 	
@@ -463,7 +469,8 @@ main(int argc,char **argv)
 	strcpy( C010_par_fec_fin,			argv[6] );
 
 	sql_conexion(C001_par_conexion);
-	//AM|quitar: r 6 1 JPSM x 20/01/2013 21/01/2013
+	//AM|quitar: r 6 1 JPSM TOD 20/01/2013 21/01/2013
+	//AM|quitar: r 6 1 JPSM TEMP 20/01/2013 21/01/2013
 	
 	if(!bfnProcesar()){
 		printf("Error\n");

@@ -2,7 +2,7 @@
 /* PROGRAMA			: odisins_tareas.pc												*/
 /* DESCRIPCION		: Órdenes de Normalización con tareas de medidor y empalme		*/
 /* AUTOR			: AM															*/
-/* FECHA			: Octubre 2016.													*/
+/* FECHA			: 26 Octubre 2016.													*/
 /* ------------------------------------------------------------------------------	*/
 
 #include <SYNString.h>
@@ -79,7 +79,6 @@ char C010_fec_hora_ini_eje[11]	;		EXEC SQL VAR C010_fec_hora_ini_eje 	IS STRING(
 char C010_fec_devoluc_prev[11]	;		EXEC SQL VAR C010_fec_devoluc_prev 	IS STRING(11) 	;
 
 
-
 /* Variables Uso Email */
 char C1024_from_name[1024]					; EXEC SQL VAR C1024_from_name			IS STRING(1024);
 char c1024_from_email[1024]					; EXEC SQL VAR c1024_from_email			IS STRING(1024);
@@ -89,8 +88,6 @@ char C1024_cc_email[1024]					; EXEC SQL VAR C1024_cc_email			IS STRING(1024);
 char C1024_cco_email[1024]					; EXEC SQL VAR C1024_cco_email			IS STRING(1024);
 char C1024_subject[1024]					; EXEC SQL VAR C1024_subject			IS STRING(1024);
 char C2048_body[2048]						; EXEC SQL VAR C2048_body				IS STRING(2048);
-char C1024_email[1024]						; EXEC SQL VAR C1024_email				IS STRING(1024);
-char C050_param_adj[51]						; EXEC SQL VAR C050_param_adj			IS STRING(51);
 
 
 /* Variables generales CHAR */
@@ -102,21 +99,19 @@ EXEC SQL END DECLARE SECTION;
 int flag_email=FALSE;
 
 
-
-/*************************************************************************/
 /* Concatena buffer con variables incluidas                              */
-/*************************************************************************/
 long strpcat(char *str, char *msg, ...)
 {
     /*double *args;*/
     va_list args;
-    char buffer[1024];
+    char buffer[2048];
     va_start(args, msg);
     vsprintf(buffer,msg,args);
     va_end(args);
     strcat(str,buffer);
     return(strlen(str));
 }
+
 
 /*                        ABRE CURSOR PRINCIPAL                                */
 SQL_OPEN_medidores(){
@@ -257,6 +252,7 @@ int SQL_FETCH_medidores(){
 	else		   {return ( TRUE );}
 }
 
+/* Crea archivo de salida en base a los prefijos y la ruta que recupera de NUCSSB0044     */
 int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){/**/
 	int		iRet;
 	char	C256_pat_unix[256]	; EXEC SQL VAR C256_pat_unix   IS STRING(256);
@@ -297,9 +293,6 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
 		return ( FALSE );
 	}
 
-	//strcpy(C1024_archivo_norm,C255_nom_file); 
-
-
 	/* Debugger */
 	if(DEBUG){
 		printf("------------------------------------------------------\n");
@@ -311,6 +304,7 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
 	return ( TRUE );
 }
 
+/* Agrega contenido al archivo de salida                                     */
 int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
 	int iRet = TRUE;
 
@@ -328,17 +322,93 @@ int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
 	return ( TRUE );
 }
 
+/* Cierra archivo de salida                                                  */
 int bfnCerrarArchivoSalida(FILE **fpOut){/**/
 	fclose ( *fpOut );
 
 	return ( TRUE );
 }
+
+
+/* Obtiene los parametros desde rol.email ademas los datos duros     */
+int SQL_parametros_main_email(){
+
+	EXEC SQL 
+		SELECT DISTINCT EMAIL
+		INTO	:C1024_to_email
+		FROM 	ROL
+		WHERE 	ROL = :C007_par_rol;
+	do_error("Select ROL - SQL_parametros_main_email()");
+		
+	if (SQLNOTFOUND){flag_email=FALSE;}
+	else{flag_email=TRUE;}
+		
+	strcpy(C1024_from_name, "noreply");
+	strcpy(c1024_from_email, "no-reply@chilectra.cl");
+	strcpy(C1024_subject, "Informe Tiempos de Atención");
+	strpcat(C2048_body, "Estimado Usuario.\nHa finalizado la ejecución del Informe. Se generó archivo %s \n", C255_nom_file);
+		
+		if(DEBUG){
+			printf("------------------------------------------------------\n");
+			printf("DEBUG[SQL_parametros_main_email]\n");
+			printf("Resultado Query: %s,%s,%s,%s,%s\n",C1024_from_name,c1024_from_email,C1024_to_email,C1024_subject,C2048_body);
+			printf("------------------------------------------------------\n\n");
+		}
+		
+	return ( TRUE );
+}
+
+/* Obtiene parametros del correo                                     */
+int SQL_parametros_email(){
+
+	memset(C1024_from_name, '\0', sizeof(C1024_from_name));
+	memset(c1024_from_email, '\0', sizeof(c1024_from_email));
+	memset(C1024_to_name, '\0', sizeof(C1024_to_name));
+	memset(C1024_to_email, '\0', sizeof(C1024_to_email));
+	memset(C1024_cc_email, '\0', sizeof(C1024_cc_email));
+	memset(C1024_cco_email, '\0', sizeof(C1024_cco_email));
+	memset(C1024_subject, '\0', sizeof(C1024_subject));
+	memset(C2048_body, '\0', sizeof(C2048_body));
+
+	SQL_parametros_main_email();
+	
+	if(!flag_email) return ( FALSE );
+
+	return ( TRUE );
+}
+
+/* Envia email segun parametros de configuracion                     */
+int ifnSendEmail()
+{
+	if(!SQL_parametros_email())
+		return ( FALSE );
+
+	correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
+	correo_body(C2048_body);
+
+	if (!correo_enviar())
+	{
+		printf(correo_error);
+		return ( FALSE );
+	}
+
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[ifnSendEmail]\n");
+		printf("Resultado OK\n");
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
+
+
 /* ------------------------------------------------------------------------- */
-/*                        PROCESAMIENTO DE DATOS                                */
+/*                        PROCESAMIENTO DE DATOS                             */
 /* ------------------------------------------------------------------------- */
 int bfnProcesar(){
 	FILE	*fpMedidores=NULL;
-	char    C4000_Buffer[4001]; 	EXEC SQL VAR C4000_Buffer IS STRING(2001) ;
+	char    C5000_Buffer[5001]; 	EXEC SQL VAR C5000_Buffer IS STRING(5001) ;
 	int iLecturas = 0;
 	int i = 0;
 
@@ -346,7 +416,7 @@ int bfnProcesar(){
 	{
 		while (SQL_FETCH_medidores())
 		{
-			memset(C4000_Buffer, '\0', sizeof(C4000_Buffer));
+			memset(C5000_Buffer, '\0', sizeof(C5000_Buffer));
 			if(!flag_records)/*controla si hay registros*/
 			{
 				flag_records=TRUE;
@@ -356,85 +426,85 @@ int bfnProcesar(){
 				}
 
 				/* Encabezado archivo */
-				strpcat(C4000_Buffer,"%-16.16s","Nro. Orden");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-13.13s","Nro. Cliente");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-11.11s","Tarifa");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-101.101s","Clave tarifa");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-101.101s","Comuna");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-121.121s","Tipo Ejecución");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-46.46s","Contratista");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-101.101s","Tipo Resultado");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-101.101s","Estado Propiedad");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-51.51s","Anormalidad");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-16.16s","Tarea Ejecutada");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-11.11s","Tipo Tarea");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-19.19s","Fecha de ejecución");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-15.15s","Fecha creación");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-17.17s","Fecha Asignación");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-19.19s","Fecha Finalización");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-15.15s","Fecha Atendida");
-				strpcat(C4000_Buffer,"%c",delimiter);
-				strpcat(C4000_Buffer,"%-1001.1001s","Observación");
+				strpcat(C5000_Buffer,"%-16.16s","Nro. Orden");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-13.13s","Nro. Cliente");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-11.11s","Tarifa");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-101.101s","Clave tarifa");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-101.101s","Comuna");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-121.121s","Tipo Ejecución");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-46.46s","Contratista");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-101.101s","Tipo Resultado");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-101.101s","Estado Propiedad");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-51.51s","Anormalidad");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-16.16s","Tarea Ejecutada");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-11.11s","Tipo Tarea");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-19.19s","Fecha de ejecución");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-15.15s","Fecha creación");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-17.17s","Fecha Asignación");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-19.19s","Fecha Finalización");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-15.15s","Fecha Atendida");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-1401.1401s","Observación");
 
-				strpcat(C4000_Buffer,"%s","\n");				
+				strpcat(C5000_Buffer,"%s","\n");				
 			}
 			
 			/* Archivo de lecturas */
-			strpcat(C4000_Buffer,"%-16.16s",C015_nro_ord_norm);
-			strpcat(C4000_Buffer,"%c",delimiter);
-			strpcat(C4000_Buffer,"%-13.13s",C010_nro_suministro);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-11.11s",C010_tarifa);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-101.101s",C100_clave_tarifa);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-101.101s",C100_comuna);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-121.121s",C120_tipo_ejecucion);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-46.46s",C045_contratista);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-101.101s",C100_tipo_resultado);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-101.101s",C100_estado_propiedad);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-51.51s",C050_anormalidad);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-16.16s",C001_tarea_ejecutada);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-11.11s",C004_tipo_tarea);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-19.19s",C010_fec_ejecucion);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-15.15s",C010_fec_creacion);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-17.17s",C010_fec_asignacion);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-19.19s",C010_fec_finalizacion);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-15.15s",C010_fec_atendida);
-			strpcat(C4000_Buffer,"%c",delimiter);			
-			strpcat(C4000_Buffer,"%-1001.1001s",C2000_observaciones);
+			strpcat(C5000_Buffer,"%-16.16s",C015_nro_ord_norm);
+			strpcat(C5000_Buffer,"%c",delimiter);
+			strpcat(C5000_Buffer,"%-13.13s",C010_nro_suministro);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-11.11s",C010_tarifa);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-101.101s",C100_clave_tarifa);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-101.101s",C100_comuna);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-121.121s",C120_tipo_ejecucion);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-46.46s",C045_contratista);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-101.101s",C100_tipo_resultado);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-101.101s",C100_estado_propiedad);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-51.51s",C050_anormalidad);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-16.16s",C001_tarea_ejecutada);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-11.11s",C004_tipo_tarea);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-19.19s",C010_fec_ejecucion);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-15.15s",C010_fec_creacion);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-17.17s",C010_fec_asignacion);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-19.19s",C010_fec_finalizacion);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-15.15s",C010_fec_atendida);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-1401.1401s",C2000_observaciones);
 
-			strpcat(C4000_Buffer,"%s","\n");
+			strpcat(C5000_Buffer,"%s","\n");
 			
-			bfnAgregarArchivoSalida(fpMedidores,C4000_Buffer);
+			bfnAgregarArchivoSalida(fpMedidores,C5000_Buffer);
 			/* Fin archivo de normalizaciones */			
 				
 		}
@@ -442,7 +512,7 @@ int bfnProcesar(){
 		if(flag_records)
 		{
 			bfnCerrarArchivoSalida(&fpMedidores);
-			//ifnSendEmail();
+			ifnSendEmail();
 		}
 	
 	}
@@ -469,9 +539,7 @@ main(int argc,char **argv)
 	strcpy( C010_par_fec_fin,			argv[6] );
 
 	sql_conexion(C001_par_conexion);
-	//AM|quitar: r 6 1 JPSM TOD 20/01/2013 21/01/2013
-	//AM|quitar: r 6 1 JPSM TEMP 20/01/2013 21/01/2013
-	
+
 	if(!bfnProcesar()){
 		printf("Error\n");
 		exit(1);

@@ -13,7 +13,6 @@ EXEC SQL INCLUDE parametros.h;
 
 /* Variables Generales */
 #define DEBUG 0
-char C255_msg[256];
 char delimiter='\0';/*0x9;tab*/
 int flag_records=FALSE;
 
@@ -85,7 +84,6 @@ char c1024_from_email[1024]					; EXEC SQL VAR c1024_from_email			IS STRING(1024
 char C1024_to_name[1024]					; EXEC SQL VAR C1024_to_name			IS STRING(1024);
 char C1024_to_email[1024]					; EXEC SQL VAR C1024_to_email			IS STRING(1024);
 char C1024_cc_email[1024]					; EXEC SQL VAR C1024_cc_email			IS STRING(1024);
-char C1024_cco_email[1024]					; EXEC SQL VAR C1024_cco_email			IS STRING(1024);
 char C1024_subject[1024]					; EXEC SQL VAR C1024_subject			IS STRING(1024);
 char C2048_body[2048]						; EXEC SQL VAR C2048_body				IS STRING(2048);
 
@@ -366,7 +364,6 @@ int SQL_parametros_email(){
 	memset(C1024_to_name, '\0', sizeof(C1024_to_name));
 	memset(C1024_to_email, '\0', sizeof(C1024_to_email));
 	memset(C1024_cc_email, '\0', sizeof(C1024_cc_email));
-	memset(C1024_cco_email, '\0', sizeof(C1024_cco_email));
 	memset(C1024_subject, '\0', sizeof(C1024_subject));
 	memset(C2048_body, '\0', sizeof(C2048_body));
 

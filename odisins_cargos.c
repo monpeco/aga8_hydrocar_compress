@@ -465,84 +465,64 @@ int bfnProcesar(){
 				}
 
 				/* Encabezado archivo */
-				strpcat(C5000_Buffer,"%-16.16s","Nro. Orden");
+				strpcat(C5000_Buffer,"%-16.16s","Nro. NORM");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-13.13s","Nro. Cliente");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				/*strpcat(C5000_Buffer,"%-11.11s","Tarifa");
+				strpcat(C5000_Buffer,"%-11.11s","Tarifa");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-101.101s","Clave tarifa");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-101.101s","Comuna");
-				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-121.121s","Tipo Ejecución");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-46.46s","Contratista");
+				strpcat(C5000_Buffer,"%-46.46s","Anormalidad");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-101.101s","Tipo Resultado");
+				strpcat(C5000_Buffer,"%-101.101s","Propiedad medidor");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-101.101s","Estado Propiedad");
+				strpcat(C5000_Buffer,"%-101.101s","Contratista");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-51.51s","Anormalidad");
+				strpcat(C5000_Buffer,"%-51.51s","Tarea ejecutada");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-16.16s","Tarea Ejecutada");
+				strpcat(C5000_Buffer,"%-16.16s","Tipo Tarea");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-11.11s","Tipo Tarea");
+				strpcat(C5000_Buffer,"%-11.11s","Cargo");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-19.19s","Fecha de ejecución");
+				strpcat(C5000_Buffer,"%-19.19s","Valor Cargo");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-15.15s","Fecha creación");
-				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-17.17s","Fecha Asignación");
-				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-19.19s","Fecha Finalización");
-				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-15.15s","Fecha Atendida");
-				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-1401.1401s","Observación");
+				strpcat(C5000_Buffer,"%-15.15s","Con cargo S/N");
 
-				strpcat(C5000_Buffer,"%s","\n");	*/			
+				strpcat(C5000_Buffer,"%s","\n");
 			}
 			
 			/* Archivo de lecturas */
-			/*strpcat(C5000_Buffer,"%-16.16s",C015_nro_ord_norm);
+			strpcat(C5000_Buffer,"%-16.16s",C015_nro_ord_norm);
 			strpcat(C5000_Buffer,"%c",delimiter);
 			strpcat(C5000_Buffer,"%-13.13s",C010_nro_suministro);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-11.11s",C010_tarifa);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-101.101s",C100_clave_tarifa);
+			strpcat(C5000_Buffer,"%c",delimiter);					
+			strpcat(C5000_Buffer,"%-121.121s",C123_tipo_ejecucion);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-101.101s",C100_comuna);
-			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-121.121s",C120_tipo_ejecucion);
-			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-46.46s",C045_contratista);
-			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-101.101s",C100_tipo_resultado);
+			strpcat(C5000_Buffer,"%-46.46s",C050_anormalidad);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-101.101s",C100_estado_propiedad);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-51.51s",C050_anormalidad);
+			strpcat(C5000_Buffer,"%-101.101s",C045_contratista);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-16.16s",C001_tarea_ejecutada);
+			strpcat(C5000_Buffer,"%-51.51s",C001_tarea_ejecutada);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-11.11s",C004_tipo_tarea);
+			strpcat(C5000_Buffer,"%-16.16s",C004_tipo_tarea);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-19.19s",C010_fec_ejecucion);
+			strpcat(C5000_Buffer,"%-11.11s",C004_cod_cargo);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-15.15s",C010_fec_creacion);
+			strpcat(C5000_Buffer,"%-19.19s",C015_val_real_trabaj);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-17.17s",C010_fec_asignacion);
-			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-19.19s",C010_fec_finalizacion);
-			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-15.15s",C010_fec_atendida);
-			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-1401.1401s",C2000_observaciones);
+			strpcat(C5000_Buffer,"%-15.15s",C001_tie_cobro);
 
 			strpcat(C5000_Buffer,"%s","\n");
-			*/
+			
 			bfnAgregarArchivoSalida(fpMedidores,C5000_Buffer);
 			/* Fin archivo de normalizaciones */			
 				

@@ -74,24 +74,17 @@ char C015_nro_ord_norm[16]		;		EXEC SQL VAR C015_nro_ord_norm 		IS STRING(16) 	;
 char C010_nro_suministro[11]	;		EXEC SQL VAR C010_nro_suministro 	IS STRING(11) 	;
 char C010_tarifa[11]			;		EXEC SQL VAR C010_tarifa 			IS STRING(11) 	;
 char C100_clave_tarifa[101]		;		EXEC SQL VAR C100_clave_tarifa 		IS STRING(101) 	;
-char C100_comuna[101]			;		EXEC SQL VAR C100_comuna 			IS STRING(101) 	;
-char C120_tipo_ejecucion[121]	;		EXEC SQL VAR C120_tipo_ejecucion 	IS STRING(121) 	;
-char C045_contratista[46]		;		EXEC SQL VAR C045_contratista 		IS STRING(46) 	;
-char C100_tipo_resultado[101]	;		EXEC SQL VAR C100_tipo_resultado 	IS STRING(101) 	;
+char C100_prop_medidor[101]		;		EXEC SQL VAR C100_prop_medidor 		IS STRING(101) 	;
+char C123_tipo_ejecucion[124]	;		EXEC SQL VAR C123_tipo_ejecucion	IS STRING(124) 	;
+char C100_resultado[101]		;		EXEC SQL VAR C100_resultado 		IS STRING(101) 	;
 char C100_estado_propiedad[101]	;		EXEC SQL VAR C100_estado_propiedad 	IS STRING(101) 	;
 char C050_anormalidad[51]		;		EXEC SQL VAR C050_anormalidad 		IS STRING(51) 	;
-char C001_tarea_ejecutada[2]	;		EXEC SQL VAR C001_tarea_ejecutada 	IS STRING(2) 	;
 char C004_tipo_tarea[5]			;		EXEC SQL VAR C004_tipo_tarea 		IS STRING(5) 	;
-char C010_fec_ejecucion[11]		;		EXEC SQL VAR C010_fec_ejecucion 	IS STRING(11) 	;
-char C010_fec_creacion[11]		;		EXEC SQL VAR C010_fec_creacion 		IS STRING(11) 	;
-char C010_fec_asignacion[11]	;		EXEC SQL VAR C010_fec_asignacion 	IS STRING(11) 	;
-char C010_fec_envio[11]			;		EXEC SQL VAR C010_fec_envio 		IS STRING(11) 	;
-char C010_fec_finalizacion[11]	;		EXEC SQL VAR C010_fec_finalizacion 	IS STRING(11) 	;
-char C010_fec_atendida[11]		;		EXEC SQL VAR C010_fec_atendida 		IS STRING(11) 	;
-char C2000_observaciones[2001]	;		EXEC SQL VAR C2000_observaciones 	IS STRING(2001) ;
-
-char C010_fec_hora_ini_eje[11]	;		EXEC SQL VAR C010_fec_hora_ini_eje 	IS STRING(11) 	;
-char C010_fec_devoluc_prev[11]	;		EXEC SQL VAR C010_fec_devoluc_prev 	IS STRING(11) 	;
+char C001_tarea_ejecutada[2]	;		EXEC SQL VAR C001_tarea_ejecutada 	IS STRING(2) 	;
+char C001_tie_cobro[2]			;		EXEC SQL VAR C001_tie_cobro 		IS STRING(2) 	;
+char C004_cod_cargo[5]			;		EXEC SQL VAR C004_cod_cargo 		IS STRING(5) 	;
+char C015_val_real_trabaj[2]	;		EXEC SQL VAR C015_val_real_trabaj 	IS STRING(2) 	;
+char C045_contratista[46]		;		EXEC SQL VAR C045_contratista 		IS STRING(46) 	;
 
 
 /* Variables Uso Email */
@@ -258,37 +251,30 @@ SQL_OPEN_medidores(){
 
 /*                        FECTCH CURSOR PRINCIPAL                            */
 int SQL_FETCH_medidores(){
-	int		iRet;
-
+	int		iRet;		
+	 
 	memset(C015_nro_ord_norm, 	'\0', sizeof(C015_nro_ord_norm));
 	memset(C010_nro_suministro, '\0', sizeof(C010_nro_suministro));
 	memset(C010_tarifa, '\0', sizeof(C010_tarifa));
 	memset(C100_clave_tarifa, '\0', sizeof(C100_clave_tarifa));
-	memset(C100_comuna, '\0', sizeof(C100_comuna));
-	memset(C120_tipo_ejecucion, '\0', sizeof(C120_tipo_ejecucion));
-	memset(C045_contratista, '\0', sizeof(C045_contratista));
-	memset(C100_tipo_resultado, '\0', sizeof(C100_tipo_resultado));
+	memset(C100_prop_medidor, '\0', sizeof(C100_prop_medidor));
+	memset(C123_tipo_ejecucion, '\0', sizeof(C123_tipo_ejecucion));
+	memset(C100_resultado, '\0', sizeof(C100_resultado));
 	memset(C100_estado_propiedad, '\0', sizeof(C100_estado_propiedad));
 	memset(C050_anormalidad, '\0', sizeof(C050_anormalidad));
-	memset(C001_tarea_ejecutada, '\0', sizeof(C001_tarea_ejecutada));
 	memset(C004_tipo_tarea, '\0', sizeof(C004_tipo_tarea));
-	memset(C010_fec_ejecucion, '\0', sizeof(C010_fec_ejecucion));
-	memset(C010_fec_creacion, '\0', sizeof(C010_fec_creacion));
-	memset(C010_fec_asignacion, '\0', sizeof(C010_fec_asignacion));
-	memset(C010_fec_envio, '\0', sizeof(C010_fec_envio));
-	memset(C010_fec_finalizacion, '\0', sizeof(C010_fec_finalizacion));
-	memset(C010_fec_atendida, '\0', sizeof(C010_fec_atendida));
-	memset(C2000_observaciones, '\0', sizeof(C2000_observaciones));
-	memset(C010_fec_hora_ini_eje, '\0', sizeof(C010_fec_hora_ini_eje));
-	memset(C010_fec_devoluc_prev, '\0', sizeof(C010_fec_devoluc_prev));
+	memset(C001_tarea_ejecutada, '\0', sizeof(C001_tarea_ejecutada));
+	memset(C001_tie_cobro, '\0', sizeof(C001_tie_cobro));
+	memset(C004_cod_cargo, '\0', sizeof(C004_cod_cargo));
+	memset(C015_val_real_trabaj, '\0', sizeof(C015_val_real_trabaj));
+	memset(C045_contratista, '\0', sizeof(C045_contratista));
+
 	
     EXEC SQL 
 		FETCH cur_medidores 
-		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_comuna
-		,:C120_tipo_ejecucion,:C100_tipo_resultado,:C100_estado_propiedad,:C050_anormalidad,:C004_tipo_tarea
-		,:C001_tarea_ejecutada,:C010_fec_creacion,:C010_fec_asignacion,:C010_fec_envio,:C010_fec_devoluc_prev
-		,:C010_fec_ejecucion,:C010_fec_atendida,C010_fec_finalizacion,C045_contratista,:C010_fec_hora_ini_eje
-		,:C2000_observaciones;
+		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_prop_medidor
+		,:C123_tipo_ejecucion,:C100_resultado,:C100_estado_propiedad,:C050_anormalidad,:C004_tipo_tarea
+		,:C001_tarea_ejecutada,:C001_tie_cobro,:C004_cod_cargo,:C015_val_real_trabaj,:C045_contratista;
 
     iRet = do_error("FETCH cur_medidores (SQL_FETCH_medidores)");
     if ( iRet == TRUE )
@@ -479,7 +465,7 @@ int bfnProcesar(){
 				}
 
 				/* Encabezado archivo */
-				strpcat(C5000_Buffer,"%-16.16s","Nro. Orden");
+				/*strpcat(C5000_Buffer,"%-16.16s","Nro. Orden");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-13.13s","Nro. Cliente");
 				strpcat(C5000_Buffer,"%c",delimiter);
@@ -515,11 +501,11 @@ int bfnProcesar(){
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-1401.1401s","Observación");
 
-				strpcat(C5000_Buffer,"%s","\n");				
+				strpcat(C5000_Buffer,"%s","\n");	*/			
 			}
 			
 			/* Archivo de lecturas */
-			strpcat(C5000_Buffer,"%-16.16s",C015_nro_ord_norm);
+			/*strpcat(C5000_Buffer,"%-16.16s",C015_nro_ord_norm);
 			strpcat(C5000_Buffer,"%c",delimiter);
 			strpcat(C5000_Buffer,"%-13.13s",C010_nro_suministro);
 			strpcat(C5000_Buffer,"%c",delimiter);			
@@ -556,7 +542,7 @@ int bfnProcesar(){
 			strpcat(C5000_Buffer,"%-1401.1401s",C2000_observaciones);
 
 			strpcat(C5000_Buffer,"%s","\n");
-			
+			*/
 			bfnAgregarArchivoSalida(fpMedidores,C5000_Buffer);
 			/* Fin archivo de normalizaciones */			
 				

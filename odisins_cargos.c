@@ -459,17 +459,17 @@ int bfnProcesar(){
 			if(!flag_records)/*controla si hay registros*/
 			{
 				flag_records=TRUE;
-				if(!bfnCrearArchivoSalida(&fpMedidores,"Norm","Tareas","xls"))
+				if(!bfnCrearArchivoSalida(&fpMedidores,"Norm","Cargos","xls"))
 				{
 					return ( FALSE );
 				}
 
 				/* Encabezado archivo */
-				/*strpcat(C5000_Buffer,"%-16.16s","Nro. Orden");
+				strpcat(C5000_Buffer,"%-16.16s","Nro. Orden");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-13.13s","Nro. Cliente");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-11.11s","Tarifa");
+				/*strpcat(C5000_Buffer,"%-11.11s","Tarifa");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-101.101s","Clave tarifa");
 				strpcat(C5000_Buffer,"%c",delimiter);

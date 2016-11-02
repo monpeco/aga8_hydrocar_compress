@@ -429,7 +429,7 @@ int bfnProcesar(){
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-46.46s",C050_anormalidad);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-101.101s",C100_estado_propiedad);
+			strpcat(C5000_Buffer,"%-101.101s",C100_prop_medidor);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-101.101s",C045_contratista);
 			strpcat(C5000_Buffer,"%c",delimiter);			

@@ -2,7 +2,7 @@
 /* PROGRAMA			: odisins_cargos.pc												*/
 /* DESCRIPCION		: 2.5.6.5	Informe de Cargos por Normalización         		*/
 /* AUTOR			: AM															*/
-/* FECHA			:  Octubre 2016.													*/
+/* FECHA			: 02 Noviembre 2016.													*/
 /* ------------------------------------------------------------------------------	*/
 
 #include <SYNString.h>
@@ -30,29 +30,6 @@ char C010_par_fec_fin[11];
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras datos medidores */
 /*
-C015_nro_ord_norm	Nro. Orden			NroOrden			NRO_ORD_NORM			NUMBER (15)
-C010_nro_suministro		Nro. Cliente		Cliente				NRO_SUMINISTRO			NUMBER (10)
-C010_tarifa				Tarifa				Tarifa				CAMPO19					CHAR (10 Byte)
-C100_clave_tarifa		Clave tarifa		ClaveTarifa			DESCRIPCION				VARCHAR2 (100 Byte)
-C100_comuna				Comuna				Comuna				DESCRIPCION				VARCHAR2 (100 Byte)
-C120_tipo_ejecucion		Tipo Ejecución		TipoEjec			VALOR1 + DESCRIPCION	VARCHAR2 (20 Byte) + VARCHAR2 (100 Byte)
-C045_contratista		Contratista			Contratista			NOM_CONTRATISTA			VARCHAR2 (45 Byte)
-C100_tipo_resultado		Tipo Resultado		Resultado			DESCRIPCION				VARCHAR2 (100 Byte)
-C100_estado_propiedad	Estado Propiedad	EstPropiedad		NOM_ACCION				VARCHAR2 (100 Byte)
-C050_anormalidad		Anormalidad			Anormalidad			h3.nom_accion			VARCHAR2 (50 Byte)
-C001_tarea_ejecutada	Tarea Ejecutada		h8.ejecutada		EJECUTADA				CHAR (1 Byte)
-C004_tipo_tarea			Tipo Tarea 			h3.cod_tarea		COD_TAREA				CHAR (4 Byte)
-C010_fec_ejecucion		Fecha de ejecución	FecEjecucion		FEC_HORA_FIN_EJE		DATE
-C010_fec_creacion		Fecha creación		FecCreacion			FEC_CREACION			DATE
-C010_fec_asignacion		Fecha Asignación	FecAsignacion		FEC_ASIGNACION			DATE
-C010_fec_envio			Fecha de envío		FecEnvio 			FEC_ENVIO				DATE	(agregado)
-C010_fec_finalizacion	Fecha Finalización	FecFinalizada		FEC_TER_ORD				DATE
-C010_fec_atendida		Fecha Atendida		FecAtendida			FEC_INGRESO_DATOS		DATE
-C2000_observaciones		Observación			observaciones		OBSERVACIONES			VARCHAR2 (2000 Byte)
-C010_fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje	fec_hora_ini_eje		DATE
-C010_fec_devoluc_prev	FecDevPrev			fec_devoluc_prev	fec_devoluc_prev		DATE
-*/
-/*Borrador nuevo
 C015_nro_ord_norm		NROORDEN		h6.nro_ord_norm			NroOrden		NUMBER (15)
 C010_nro_suministro		CLIENTE			h6.nro_suministro 		Cliente			NUMBER (10)
 C010_tarifa				TARIFA			n5.campo19 				Tarifa			CHAR (10 Byte)
@@ -126,61 +103,6 @@ SQL_OPEN_medidores(){
 	
 	memset(C3000_sql_sente, '\0', sizeof(C3000_sql_sente));
 		
-/*	strcpy(C3000_sql_sente, " select distinct ");
-	strpcat(C3000_sql_sente, "     h6.nro_ord_norm NroOrden, ");
-	strpcat(C3000_sql_sente, "     h6.nro_suministro Cliente, ");
-	strpcat(C3000_sql_sente, "     n5.campo19 Tarifa, ");
-	strpcat(C3000_sql_sente, "         (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n5.cod_empresa and n11.nomtabla = 'CLATAR' and trim(n5.campo20) = n11.codigo) ClaveTarifa, ");
-	strpcat(C3000_sql_sente, "         (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n19.cod_empresa and n11.nomtabla = 'COMUNA' and n19.campo22 = n11.codigo) Comuna, ");
-	strpcat(C3000_sql_sente, "         (select n11.valor1 || ' - ' || n11.descripcion   ");
-	strpcat(C3000_sql_sente, "         from hurssb0039 h39,nucssb0011 n11   ");
-	strpcat(C3000_sql_sente, "         where h39.cod_empresa = h6.cod_empresa   ");
-	strpcat(C3000_sql_sente, "         and h39.id_folio_preselecc = h6.id_folio_preselecc   ");
-	strpcat(C3000_sql_sente, "         and n11.cod_empresa = h6.cod_empresa   ");
-	strpcat(C3000_sql_sente, "         and n11.nomtabla = 'EJEINSP'  and n11.codigo=h39.tip_ejecucion) TipoEjec, ");
-	strpcat(C3000_sql_sente, "         (select n11.descripcion  ");
-	strpcat(C3000_sql_sente, "         from nucssb0011 n11 ");
-	strpcat(C3000_sql_sente, "         where n11.cod_empresa = h6.cod_empresa  ");
-	strpcat(C3000_sql_sente, "         and n11.nomtabla = 'RESNORM'  ");
-	strpcat(C3000_sql_sente, "     and n11.codigo = h6.tip_resultado) Resultado, ");
-	strpcat(C3000_sql_sente, "         (select descripcion from nucssb0011 n11 where n11.nomtabla = 'ESTPROP' and n11.cod_empresa = h6.cod_empresa  and n11.codigo = h6.est_propiedad  ) EstPropiedad, ");
-	strpcat(C3000_sql_sente, "     h3.nom_accion, ");
-	strpcat(C3000_sql_sente, "     h3.cod_tarea,  ");
-	strpcat(C3000_sql_sente, "     h8.ejecutada, ");
-	strpcat(C3000_sql_sente, "     to_char(h6.fec_creacion,'dd/mm/yyyy hh24:mi:ss') FecCreacion, ");
-	strpcat(C3000_sql_sente, "     to_char(h6.fec_asignacion,'dd/mm/yyyy hh24:mi:ss') FecAsignacion, ");
-	strpcat(C3000_sql_sente, "     to_char(h6.fec_envio,'dd/mm/yyyy hh24:mi:ss') FecEnvio, ");
-	strpcat(C3000_sql_sente, "     to_char(h6.fec_devoluc_prev,'dd/mm/yyyy') FecDevPrev, ");
-	strpcat(C3000_sql_sente, "     to_char(h6.fec_hora_fin_eje ,'dd/mm/yyyy hh24:mi:ss') FecEjecucion, ");
-	strpcat(C3000_sql_sente, "     to_char(h6.fec_ingreso_datos ,'dd/mm/yyyy hh24:mi:ss') FecAtendida, ");
-	strpcat(C3000_sql_sente, "         (select to_char(t1.fec_ter_ord ,'dd/mm/yyyy hh24:mi:ss') ");
-	strpcat(C3000_sql_sente, "          from tomssb0001 t1 ");
-	strpcat(C3000_sql_sente, "          where t1.cod_empresa = h6.cod_empresa ");
-	strpcat(C3000_sql_sente, "          and t1.nro_orden = h6.nro_ord_norm ");
-	strpcat(C3000_sql_sente, "          and t1.tip_orden = 'NORM') FecFinalizada, ");
-	strpcat(C3000_sql_sente, "         (select t1.nom_contratista from tasssb0001 t1 where t1.cod_empresa = h6.cod_empresa and t1.cod_contratista = h6.cod_contratista) Contratista, ");
-	strpcat(C3000_sql_sente, "     h6.fec_hora_ini_eje, ");
-	strpcat(C3000_sql_sente, "     h6.observaciones ");
-	strpcat(C3000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5,nucssb0019 n19, hurssb0003 h3 ");
-	strpcat(C3000_sql_sente, " where h6.cod_empresa = %s  " , C003_par_empresa);
-	strpcat(C3000_sql_sente, " and h6.tip_ord_norm = 'O' ");
-	strpcat(C3000_sql_sente, " and h6.fec_hora_ini_eje >= to_date('%s' || ' 00:00:00' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_inicio);
-	strpcat(C3000_sql_sente, " and h6.fec_hora_ini_eje <= to_date('%s' || ' 23:59:59' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_fin);
-	strpcat(C3000_sql_sente, " and h6.est_orden = 'F' ");
-	strpcat(C3000_sql_sente, " and h6.cod_empresa = h8.cod_empresa ");
-	strpcat(C3000_sql_sente, " and h6.nro_ord_norm = h8.nro_ord_norm ");
-	strpcat(C3000_sql_sente, " and h6.tip_ord_norm = h8.tip_ord_norm ");
-	strpcat(C3000_sql_sente, " and h8.cod_empresa = h3.cod_empresa ");
-	strpcat(C3000_sql_sente, " and h8.cod_accion = h3.cod_accion ");
-	strpcat(C3000_sql_sente, " and h6.nro_suministro = n5.nro_suministro ");
-	strpcat(C3000_sql_sente, " and h6.cod_empresa = n5.cod_empresa ");
-	strpcat(C3000_sql_sente, " and h6.nro_suministro  = n19.nro_suministro  ");
-	strpcat(C3000_sql_sente, " and h6.cod_empresa = n19.cod_empresa ");
-	strpcat(C3000_sql_sente, " and n19.tip_dir = 'S' ");
-	
-	strpcat(C3000_sql_sente, " order by h6.nro_ord_norm \n");
-*/
-
 	strcpy(C3000_sql_sente, " select ");
 	strpcat(C3000_sql_sente, "    h6.nro_ord_norm NroOrden, ");
 	strpcat(C3000_sql_sente, "    h6.nro_suministro Cliente, ");

@@ -39,6 +39,29 @@ C100_clave_tarifa		CLAVETARIFA		n11.descripcion			ClaveTarifa		VARCHAR2 (100 Byt
 C100_prop_medidor		PROPMEDIDOR		n11.descripcion			PropMedidor		VARCHAR2 (100 Byte)							nuevo
 C123_tipo_ejecucion		TIPOEJEC		n11.valor1				TipoEjec		VARCHAR2 (20 Byte)+3+VARCHAR2 (100 Byte)	cambió 120 a 123
 						3+n11.descripcion
+C003_capacidad			substr(n11.descripcion,3,3)				Capacidad		
+C010_tipo_empalme												TipoEmpalme		'Trifasico' or 'Monofasico'
+C100_tipo_medicion		n11.descripcion							TipoMedicion	VARCHAR2 (100 Byte)
+C045_contratista		CONTRATISTA		t1.nom_contratista		Contratista		VARCHAR2 (45 Byte)
+C050_anormalidad		ANORMALIDAD		h3.nom_accion 			Anormalidad		VARCHAR2 (50 Byte)
+C004_tipo_tarea			TIPO_TAREA		h3.cod_tarea 			TipoTarea		CHAR (4 Byte)
+C001_tarea_ejecutada	EJECUTADA		h8.ejecutada			-				CHAR (1 Byte)
+
+
+C100_resultado			RESULTADO		n11.descripcion			Resultado		VARCHAR2 (100 Byte)							nuevo
+C100_estado_propiedad	ESTPROPIEDAD	descripcion				EstPropiedad	VARCHAR2 (100 Byte)
+C001_tie_cobro			TIE_COBRO		h8.tie_cobro			-				CHAR (1 Byte)								nuevo
+C004_cod_cargo			COD_CARGO		h3.cod_cargo			-				CHAR (4 Byte)								nuevo
+C015_val_real_trabaj	VAL_REAL_TRABAJ	h8.val_real_trabaj		-				NUMBER (15,3)								nuevo
+*/
+/*
+C015_nro_ord_norm		NROORDEN		h6.nro_ord_norm			NroOrden		NUMBER (15)
+C010_nro_suministro		CLIENTE			h6.nro_suministro 		Cliente			NUMBER (10)
+C010_tarifa				TARIFA			n5.campo19 				Tarifa			CHAR (10 Byte)
+C100_clave_tarifa		CLAVETARIFA		n11.descripcion			ClaveTarifa		VARCHAR2 (100 Byte)
+C100_prop_medidor		PROPMEDIDOR		n11.descripcion			PropMedidor		VARCHAR2 (100 Byte)							nuevo
+C123_tipo_ejecucion		TIPOEJEC		n11.valor1				TipoEjec		VARCHAR2 (20 Byte)+3+VARCHAR2 (100 Byte)	cambió 120 a 123
+						3+n11.descripcion
 C100_resultado			RESULTADO		n11.descripcion			Resultado		VARCHAR2 (100 Byte)							nuevo
 C100_estado_propiedad	ESTPROPIEDAD	descripcion				EstPropiedad	VARCHAR2 (100 Byte)
 C050_anormalidad		ANORMALIDAD		h3.nom_accion 			Anormalidad		VARCHAR2 (50 Byte)
@@ -55,16 +78,21 @@ char C010_tarifa[11]			;		EXEC SQL VAR C010_tarifa 			IS STRING(11) 	;
 char C100_clave_tarifa[101]		;		EXEC SQL VAR C100_clave_tarifa 		IS STRING(101) 	;
 char C100_prop_medidor[101]		;		EXEC SQL VAR C100_prop_medidor 		IS STRING(101) 	;
 char C123_tipo_ejecucion[124]	;		EXEC SQL VAR C123_tipo_ejecucion	IS STRING(124) 	;
-char C100_resultado[101]		;		EXEC SQL VAR C100_resultado 		IS STRING(101) 	;
-char C100_estado_propiedad[101]	;		EXEC SQL VAR C100_estado_propiedad 	IS STRING(101) 	;
+char C003_capacidad[4]			;		EXEC SQL VAR C003_capacidad			IS STRING(4) 	;
+char C010_tipo_empalme[11]		;		EXEC SQL VAR C010_tipo_empalme		IS STRING(11) 	;
+char C100_tipo_medicion[101]	;		EXEC SQL VAR C100_tipo_medicion		IS STRING(101) 	;
+char C045_contratista[46]		;		EXEC SQL VAR C045_contratista 		IS STRING(46) 	;
 char C050_anormalidad[51]		;		EXEC SQL VAR C050_anormalidad 		IS STRING(51) 	;
 char C004_tipo_tarea[5]			;		EXEC SQL VAR C004_tipo_tarea 		IS STRING(5) 	;
 char C001_tarea_ejecutada[2]	;		EXEC SQL VAR C001_tarea_ejecutada 	IS STRING(2) 	;
+
+/*
+char C100_resultado[101]		;		EXEC SQL VAR C100_resultado 		IS STRING(101) 	;
+char C100_estado_propiedad[101]	;		EXEC SQL VAR C100_estado_propiedad 	IS STRING(101) 	;
 char C001_tie_cobro[2]			;		EXEC SQL VAR C001_tie_cobro 		IS STRING(2) 	;
 char C004_cod_cargo[5]			;		EXEC SQL VAR C004_cod_cargo 		IS STRING(5) 	;
 char C015_val_real_trabaj[2]	;		EXEC SQL VAR C015_val_real_trabaj 	IS STRING(2) 	;
-char C045_contratista[46]		;		EXEC SQL VAR C045_contratista 		IS STRING(46) 	;
-
+*/
 
 /* Variables Uso Email */
 char C1024_from_name[1024]					; EXEC SQL VAR C1024_from_name			IS STRING(1024);
@@ -105,6 +133,61 @@ SQL_OPEN_medidores(){
 	
 	memset(C3000_sql_sente, '\0', sizeof(C3000_sql_sente));
 		
+	strcpy(C3000_sql_sente, "select  ");
+	strpcat(C3000_sql_sente, "h6.nro_ord_norm NroOrden, ");
+	strpcat(C3000_sql_sente, "h6.nro_suministro Cliente, ");
+	strpcat(C3000_sql_sente, "n5.campo19 Tarifa, ");
+	strpcat(C3000_sql_sente, "(select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n5.cod_empresa and n11.nomtabla = 'CLATAR' and trim(n5.campo20) = n11.codigo) ClaveTarifa, ");
+	strpcat(C3000_sql_sente, "(select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = m11.cod_empresa and n11.nomtabla = 'PROMEDI' and m11.propiedad_equipo = n11.codigo) PropMedidor, ");
+	strpcat(C3000_sql_sente, "    (select n11.valor1 || ' - ' || n11.descripcion   ");
+	strpcat(C3000_sql_sente, "    from hurssb0039 h39,nucssb0011 n11   ");
+	strpcat(C3000_sql_sente, "    where h39.cod_empresa = h6.cod_empresa   ");
+	strpcat(C3000_sql_sente, "    and h39.id_folio_preselecc = h6.id_folio_preselecc   ");
+	strpcat(C3000_sql_sente, "    and n11.cod_empresa = h6.cod_empresa   ");
+	strpcat(C3000_sql_sente, "    and n11.nomtabla = 'EJEINSP'  and n11.codigo=h39.tip_ejecucion) TipoEjec, ");
+	strpcat(C3000_sql_sente, "substr(n11.descripcion,3,3) Capacidad, ");
+	strpcat(C3000_sql_sente, "    (case  ");
+	strpcat(C3000_sql_sente, "        when substr(n11.descripcion,2,1) in (' ','R','U','E','C','I') then ");
+	strpcat(C3000_sql_sente, "            'Trifasico' ");
+	strpcat(C3000_sql_sente, "        else ");
+	strpcat(C3000_sql_sente, "            'Monofasico' ");
+	strpcat(C3000_sql_sente, "        end ");
+	strpcat(C3000_sql_sente, "    ) TipoEmpalme, ");
+	strpcat(C3000_sql_sente, "    (select n11.descripcion  ");
+	strpcat(C3000_sql_sente, "    from medssb0027 m27, nucssb0011 n11  ");
+	strpcat(C3000_sql_sente, "    where m27.cod_empresa = m11.cod_empresa  ");
+	strpcat(C3000_sql_sente, "    and m27.cod_funmed = substr(m11.cod_modelo,1,1) ");
+	strpcat(C3000_sql_sente, "    and m27.cod_empresa = n11.cod_empresa ");
+	strpcat(C3000_sql_sente, "    and n11.nomtabla='CODMEDI'  ");
+	strpcat(C3000_sql_sente, "    and trim(n11.codigo) = trim(m27.cod_medida)) TipoMedicion, ");
+	strpcat(C3000_sql_sente, "(select t1.nom_contratista from tasssb0001 t1 where t1.cod_empresa = h6.cod_empresa and t1.cod_contratista = h6.cod_contratista) Contratista, ");
+	strpcat(C3000_sql_sente, "h3.nom_accion Anormalidad, ");
+	strpcat(C3000_sql_sente, "h3.cod_tarea TipoTarea,  ");
+	strpcat(C3000_sql_sente, "h8.ejecutada ");
+	strpcat(C3000_sql_sente, "from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11 ");
+	strpcat(C3000_sql_sente, "where h6.cod_empresa = %s  " , C003_par_empresa);
+	strpcat(C3000_sql_sente, "    and h6.tip_ord_norm = 'O' ");
+	strpcat(C3000_sql_sente, "    and h6.fec_hora_ini_eje >= to_date('%s' || ' 00:00:00' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_inicio);
+	strpcat(C3000_sql_sente, "    and h6.fec_hora_ini_eje <= to_date('%s' || ' 23:59:59' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_fin);
+	strpcat(C3000_sql_sente, "    and h6.est_orden = 'F' ");
+	strpcat(C3000_sql_sente, "    and h6.cod_empresa = h8.cod_empresa ");
+	strpcat(C3000_sql_sente, "    and h6.nro_ord_norm = h8.nro_ord_norm ");
+	strpcat(C3000_sql_sente, "    and h6.tip_ord_norm = h8.tip_ord_norm ");
+	strpcat(C3000_sql_sente, "    and h8.cod_empresa = h3.cod_empresa ");
+	strpcat(C3000_sql_sente, "    and h8.cod_accion = h3.cod_accion ");
+	strpcat(C3000_sql_sente, "    and h6.nro_suministro = n5.nro_suministro ");
+	strpcat(C3000_sql_sente, "    and h6.cod_empresa = n5.cod_empresa ");
+	strpcat(C3000_sql_sente, "    and h6.nro_suministro  = m11.nro_suministro  ");
+	strpcat(C3000_sql_sente, "    and h6.cod_empresa = m11.cod_empresa ");
+	strpcat(C3000_sql_sente, "    and m11.est_aparato = 'I' ");
+	strpcat(C3000_sql_sente, "    and m11.tip_aparato = 'ME' ");
+	strpcat(C3000_sql_sente, "    and n11.cod_empresa = n5.cod_empresa  ");
+	strpcat(C3000_sql_sente, "    and n11.codigo = n5.tip_empalme ");
+	strpcat(C3000_sql_sente, "    and n11.nomtabla = 'EMPAL' ");
+	strpcat(C3000_sql_sente, "    and n11.estado = 'A'  ");
+	strpcat(C3000_sql_sente, "order by h6.nro_ord_norm \n");
+
+	/*
 	strcpy(C3000_sql_sente, " select ");
 	strpcat(C3000_sql_sente, "    h6.nro_ord_norm NroOrden, ");
 	strpcat(C3000_sql_sente, "    h6.nro_suministro Cliente, ");
@@ -148,6 +231,7 @@ SQL_OPEN_medidores(){
 	strpcat(C3000_sql_sente, "and m11.est_aparato = 'I' ");
 	strpcat(C3000_sql_sente, "and m11.tip_aparato = 'ME'  ");
 	strpcat(C3000_sql_sente, "order by h6.nro_ord_norm \n");
+	*/
 		
 	
 	EXEC SQL DECLARE p_medidores STATEMENT;
@@ -183,22 +267,22 @@ int SQL_FETCH_medidores(){
 	memset(C100_clave_tarifa, '\0', sizeof(C100_clave_tarifa));
 	memset(C100_prop_medidor, '\0', sizeof(C100_prop_medidor));
 	memset(C123_tipo_ejecucion, '\0', sizeof(C123_tipo_ejecucion));
-	memset(C100_resultado, '\0', sizeof(C100_resultado));
-	memset(C100_estado_propiedad, '\0', sizeof(C100_estado_propiedad));
+	memset(C003_capacidad, '\0', sizeof(C003_capacidad));
+	memset(C010_tipo_empalme, '\0', sizeof(C010_tipo_empalme));
+	memset(C100_tipo_medicion, '\0', sizeof(C100_tipo_medicion));
+	memset(C045_contratista, '\0', sizeof(C045_contratista));
 	memset(C050_anormalidad, '\0', sizeof(C050_anormalidad));
 	memset(C004_tipo_tarea, '\0', sizeof(C004_tipo_tarea));
 	memset(C001_tarea_ejecutada, '\0', sizeof(C001_tarea_ejecutada));
-	memset(C001_tie_cobro, '\0', sizeof(C001_tie_cobro));
-	memset(C004_cod_cargo, '\0', sizeof(C004_cod_cargo));
+	/*memset(C004_cod_cargo, '\0', sizeof(C004_cod_cargo));
 	memset(C015_val_real_trabaj, '\0', sizeof(C015_val_real_trabaj));
-	memset(C045_contratista, '\0', sizeof(C045_contratista));
 
-	
+	*/
     EXEC SQL 
 		FETCH cur_medidores 
 		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_prop_medidor
-		,:C123_tipo_ejecucion,:C100_resultado,:C100_estado_propiedad,:C050_anormalidad,:C004_tipo_tarea
-		,:C001_tarea_ejecutada,:C001_tie_cobro,:C004_cod_cargo,:C015_val_real_trabaj,:C045_contratista;
+		,:C123_tipo_ejecucion,:C003_capacidad,:C010_tipo_empalme,:C100_tipo_medicion,:C045_contratista
+		,:C050_anormalidad,:C004_tipo_tarea,:C001_tarea_ejecutada;
 
     iRet = do_error("FETCH cur_medidores (SQL_FETCH_medidores)");
     if ( iRet == TRUE )
@@ -429,6 +513,7 @@ int bfnProcesar(){
 			strpcat(C5000_Buffer,"%c",delimiter);					
 			strpcat(C5000_Buffer,"%-121.121s",C123_tipo_ejecucion);
 			strpcat(C5000_Buffer,"%c",delimiter);			
+/*			
 			strpcat(C5000_Buffer,"%-46.46s",C050_anormalidad);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-101.101s",C100_prop_medidor);
@@ -444,7 +529,7 @@ int bfnProcesar(){
 			strpcat(C5000_Buffer,"%-19.19s",C015_val_real_trabaj);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-15.15s",C001_tie_cobro);
-
+*/
 			strpcat(C5000_Buffer,"%s","\n");
 			
 			bfnAgregarArchivoSalida(fpMedidores,C5000_Buffer);

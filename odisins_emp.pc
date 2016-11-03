@@ -1,8 +1,8 @@
 /* -----------------------------------------------------------------------------	*/
 /* PROGRAMA			: odisins_cargos.pc												*/
-/* DESCRIPCION		: 2.5.6.5	Informe de Cargos por Normalización         		*/
+/* DESCRIPCION		: 2.5.6.6	Listado de órdenes por tipo de empalme/ capacidad  	*/
 /* AUTOR			: AM															*/
-/* FECHA			: 02 Noviembre 2016.													*/
+/* FECHA			:  Noviembre 2016.												*/
 /* ------------------------------------------------------------------------------	*/
 
 #include <SYNString.h>
@@ -20,6 +20,8 @@ int flag_records=FALSE;
 char C001_par_conexion[2];
 char C003_par_empresa[4];
 char C007_par_rol[8];
+char C010_par_tipo_ejecucion[11];
+char C010_par_origen[11];
 char C010_par_fec_inicio[11];
 char C010_par_fec_fin[11];
 
@@ -466,16 +468,18 @@ int bfnProcesar(){
 /* ------------------------------------------------------------------------- */
 main(int argc,char **argv)
 {
-   if( argc != 6){
-		printf("Use : %s <N° Conexion> <Empresa> <Rol> <FecInicio> <FecFin> \n",argv[0]);
+   if( argc != 8){
+		printf("Use : %s <N° Conexion> <Empresa> <Rol> <Tipo Ejecucion> <Origen> <FecInicio> <FecFin> \n",argv[0]);
 		exit(1);
     }
 
 	strcpy( C001_par_conexion,			argv[1] );
 	strcpy( C003_par_empresa,			argv[2] );
 	strcpy( C007_par_rol,				argv[3] );
-	strcpy( C010_par_fec_inicio,		argv[4] );
-	strcpy( C010_par_fec_fin,			argv[5] );
+	strcpy( C010_par_tipo_ejecucion,	argv[4] );
+	strcpy( C010_par_origen,			argv[5] );
+	strcpy( C010_par_fec_inicio,		argv[6] );
+	strcpy( C010_par_fec_fin,			argv[7] );
 
 	sql_conexion(C001_par_conexion);
 

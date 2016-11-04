@@ -32,20 +32,22 @@ char C010_par_fec_fin[11];
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras datos medidores */
 /*
-C015_nro_ord_norm		NROORDEN		h6.nro_ord_norm			NroOrden		NUMBER (15)
-C010_nro_suministro		CLIENTE			h6.nro_suministro 		Cliente			NUMBER (10)
-C010_tarifa				TARIFA			n5.campo19 				Tarifa			CHAR (10 Byte)
-C100_clave_tarifa		CLAVETARIFA		n11.descripcion			ClaveTarifa		VARCHAR2 (100 Byte)
-C100_prop_medidor		PROPMEDIDOR		n11.descripcion			PropMedidor		VARCHAR2 (100 Byte)							nuevo
-C123_tipo_ejecucion		TIPOEJEC		n11.valor1				TipoEjec		VARCHAR2 (20 Byte)+3+VARCHAR2 (100 Byte)	cambió 120 a 123
-						3+n11.descripcion
-C003_capacidad			substr(n11.descripcion,3,3)				Capacidad		
-C010_tipo_empalme												TipoEmpalme		'Trifasico' or 'Monofasico'
-C100_tipo_medicion		n11.descripcion							TipoMedicion	VARCHAR2 (100 Byte)
-C045_contratista		CONTRATISTA		t1.nom_contratista		Contratista		VARCHAR2 (45 Byte)
-C050_anormalidad		ANORMALIDAD		h3.nom_accion 			Anormalidad		VARCHAR2 (50 Byte)
-C004_tipo_tarea			TIPO_TAREA		h3.cod_tarea 			TipoTarea		CHAR (4 Byte)
-C001_tarea_ejecutada	EJECUTADA		h8.ejecutada			-				CHAR (1 Byte)
+C015_nro_ord_norm		Nro. NORM			NROORDEN		h6.nro_ord_norm				NroOrden		NUMBER (15)
+C010_nro_suministro		Nro. Cliente		CLIENTE			h6.nro_suministro 			Cliente			NUMBER (10)
+C010_tarifa				Tarifa				TARIFA			n5.campo19 					Tarifa			CHAR (10 Byte)
+C100_clave_tarifa		Clave tarifa		CLAVETARIFA		n11.descripcion				ClaveTarifa		VARCHAR2 (100 Byte)
+C100_prop_medidor		Propiedad medidor	PROPMEDIDOR		n11.descripcion				PropMedidor		VARCHAR2 (100 Byte)						
+C123_tipo_ejecucion							TIPOEJEC		n11.valor1					TipoEjec		VARCHAR2 (20 Byte)+3+
+											3+n11.descripcion							VARCHAR2 (100 Byte)
+C003_capacidad			Capacidad empalme	CAPACIDAD		substr(n11.descripcion,3,3)	Capacidad		3
+C010_tipo_empalme		Tipo medidor		TIPOEMPALME		-							TipoEmpalme		'Trifasico' or 'Monofasico'
+C100_tipo_medicion		Tipo medida			TIPOMEDICION	n11.descripcion				TipoMedicion	VARCHAR2 (100 Byte)
+C045_contratista		Contratista			CONTRATISTA		t1.nom_contratista			Contratista		VARCHAR2 (45 Byte)
+C050_anormalidad							ANORMALIDAD		h3.nom_accion 				Anormalidad		VARCHAR2 (50 Byte)
+C004_tipo_tarea			Tipo Tarea			TIPOTAREA		h3.cod_tarea 				TipoTarea		CHAR (4 Byte)
+C001_tarea_ejecutada	Tarea ejecutada		EJECUTADA		h8.ejecutada				-				CHAR (1 Byte)
+C100_comuna				Comuna				COMUNA			n11.descripcion				Comuna			VARCHAR2 (100 Byte)
+C020_fecha_ejecucion	Fecha ejecución		FECEJECUCION	h6.fec_hora_fin_eje			FecEjecucion	20
 */
 
 char C015_nro_ord_norm[16]		;		EXEC SQL VAR C015_nro_ord_norm 		IS STRING(16) 	;
@@ -61,6 +63,8 @@ char C045_contratista[46]		;		EXEC SQL VAR C045_contratista 		IS STRING(46) 	;
 char C050_anormalidad[51]		;		EXEC SQL VAR C050_anormalidad 		IS STRING(51) 	;
 char C004_tipo_tarea[5]			;		EXEC SQL VAR C004_tipo_tarea 		IS STRING(5) 	;
 char C001_tarea_ejecutada[2]	;		EXEC SQL VAR C001_tarea_ejecutada 	IS STRING(2) 	;
+char C100_comuna[101]			;		EXEC SQL VAR C100_comuna			IS STRING(101) 	;
+char C020_fecha_ejecucion[21]	;		EXEC SQL VAR C020_fecha_ejecucion	IS STRING(21) 	;
 
 
 /* Variables Uso Email */
@@ -132,8 +136,10 @@ SQL_OPEN_medidores(){
 	strpcat(C3000_sql_sente, " (select t1.nom_contratista from tasssb0001 t1 where t1.cod_empresa = h6.cod_empresa and t1.cod_contratista = h6.cod_contratista) Contratista, ");
 	strpcat(C3000_sql_sente, " h3.nom_accion Anormalidad, ");
 	strpcat(C3000_sql_sente, " h3.cod_tarea TipoTarea,  ");
-	strpcat(C3000_sql_sente, " h8.ejecutada ");
-	strpcat(C3000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11 ");
+	strpcat(C3000_sql_sente, " h8.ejecutada, ");
+	strpcat(C3000_sql_sente, " (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n19.cod_empresa and n11.nomtabla = 'COMUNA' and n19.campo22 = n11.codigo) Comuna, ");
+	strpcat(C3000_sql_sente, " to_char(h6.fec_hora_fin_eje ,'dd/mm/yyyy hh24:mi:ss') FecEjecucion ");
+	strpcat(C3000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11,nucssb0019 n19 ");
 	strpcat(C3000_sql_sente, " where h6.cod_empresa = %s  " , C003_par_empresa);
 	strpcat(C3000_sql_sente, "    and h6.tip_ord_norm = 'O' ");
 	strpcat(C3000_sql_sente, "    and h6.fec_hora_ini_eje >= to_date('%s' || ' 00:00:00' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_inicio);
@@ -154,6 +160,9 @@ SQL_OPEN_medidores(){
 	strpcat(C3000_sql_sente, "    and n11.codigo = n5.tip_empalme ");
 	strpcat(C3000_sql_sente, "    and n11.nomtabla = 'EMPAL' ");
 	strpcat(C3000_sql_sente, "    and n11.estado = 'A'  ");
+	strpcat(C3000_sql_sente, "    and h6.nro_suministro  = n19.nro_suministro  ");
+	strpcat(C3000_sql_sente, "    and h6.cod_empresa = n19.cod_empresa  ");
+	strpcat(C3000_sql_sente, "    and n19.tip_dir = 'S'  ");
 	strpcat(C3000_sql_sente, " order by h6.nro_ord_norm \n");
 		
 	
@@ -197,12 +206,14 @@ int SQL_FETCH_medidores(){
 	memset(C050_anormalidad, '\0', sizeof(C050_anormalidad));
 	memset(C004_tipo_tarea, '\0', sizeof(C004_tipo_tarea));
 	memset(C001_tarea_ejecutada, '\0', sizeof(C001_tarea_ejecutada));
+	memset(C100_comuna, '\0', sizeof(C100_comuna));
+	memset(C020_fecha_ejecucion, '\0', sizeof(C020_fecha_ejecucion));
 
     EXEC SQL 
 		FETCH cur_medidores 
 		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_prop_medidor
 		,:C123_tipo_ejecucion,:C003_capacidad,:C010_tipo_empalme,:C100_tipo_medicion,:C045_contratista
-		,:C050_anormalidad,:C004_tipo_tarea,:C001_tarea_ejecutada;
+		,:C050_anormalidad,:C004_tipo_tarea,:C001_tarea_ejecutada,:C100_comuna,:C020_fecha_ejecucion;
 
     iRet = do_error("FETCH cur_medidores (SQL_FETCH_medidores)");
     if ( iRet == TRUE )
@@ -387,7 +398,7 @@ int bfnProcesar(){
 			if(!flag_records)/*controla si hay registros*/
 			{
 				flag_records=TRUE;
-				if(!bfnCrearArchivoSalida(&fpMedidores,"Norm","Cargos","xls"))
+				if(!bfnCrearArchivoSalida(&fpMedidores,"Norm","Empalme","xls"))
 				{
 					return ( FALSE );
 				}
@@ -401,23 +412,23 @@ int bfnProcesar(){
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-101.101s","Clave tarifa");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-121.121s","Tipo Ejecución");
+				strpcat(C5000_Buffer,"%-101.101s","Comuna");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-46.46s","Anormalidad");
+				strpcat(C5000_Buffer,"%-18.18s","Capacidad empalme");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-21.21s","Fecha ejecución");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-101.101s","Propiedad medidor");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-101.101s","Contratista");
+				strpcat(C5000_Buffer,"%-13.13s","Tipo medidor");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-51.51s","Tarea ejecutada");
+				strpcat(C5000_Buffer,"%-101.101s","Tipo medida");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-16.16s","Tipo Tarea");
+				strpcat(C5000_Buffer,"%-46.46s","Contratista");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-11.11s","Cargo");
+				strpcat(C5000_Buffer,"%-16.16s","Tarea ejecutada");
 				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-19.19s","Valor Cargo");
-				strpcat(C5000_Buffer,"%c",delimiter);
-				strpcat(C5000_Buffer,"%-15.15s","Con cargo S/N");
+				strpcat(C5000_Buffer,"%-11.11s","Tipo Tarea");
 
 				strpcat(C5000_Buffer,"%s","\n");
 			}
@@ -431,25 +442,24 @@ int bfnProcesar(){
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-101.101s",C100_clave_tarifa);
 			strpcat(C5000_Buffer,"%c",delimiter);					
-			strpcat(C5000_Buffer,"%-121.121s",C123_tipo_ejecucion);
+			strpcat(C5000_Buffer,"%-101.101s",C100_comuna);
+			strpcat(C5000_Buffer,"%c",delimiter);					
+			strpcat(C5000_Buffer,"%-18.18s",C003_capacidad);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-/*			
-			strpcat(C5000_Buffer,"%-46.46s",C050_anormalidad);
+			strpcat(C5000_Buffer,"%-21.21s",C020_fecha_ejecucion);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-101.101s",C100_prop_medidor);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-101.101s",C045_contratista);
+			strpcat(C5000_Buffer,"%-13.13s",C010_tipo_empalme);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-51.51s",C001_tarea_ejecutada);
+			strpcat(C5000_Buffer,"%-101.101s",C100_tipo_medicion);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-16.16s",C004_tipo_tarea);
+			strpcat(C5000_Buffer,"%-46.46s",C045_contratista);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-11.11s",C004_cod_cargo);
+			strpcat(C5000_Buffer,"%-16.16s",C001_tarea_ejecutada);
 			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-19.19s",C015_val_real_trabaj);
-			strpcat(C5000_Buffer,"%c",delimiter);			
-			strpcat(C5000_Buffer,"%-15.15s",C001_tie_cobro);
-*/
+			strpcat(C5000_Buffer,"%-11.11s",C004_tipo_tarea);
+
 			strpcat(C5000_Buffer,"%s","\n");
 			
 			bfnAgregarArchivoSalida(fpMedidores,C5000_Buffer);

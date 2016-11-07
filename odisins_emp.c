@@ -2,7 +2,7 @@
 /* PROGRAMA			: odisins_cargos.pc												*/
 /* DESCRIPCION		: 2.5.6.6	Listado de órdenes por tipo de empalme/ capacidad  	*/
 /* AUTOR			: AM															*/
-/* FECHA			:  Noviembre 2016.			AM|quitar									*/
+/* FECHA			: 07 Noviembre 2016.											*/
 /* ------------------------------------------------------------------------------	*/
 
 #include <SYNString.h>
@@ -169,7 +169,7 @@ SQL_OPEN_medidores(){
 		strpcat(C4000_sql_sente, "    (select 1 ");
 		strpcat(C4000_sql_sente, "    from hurssb0039 h39 ");
 		strpcat(C4000_sql_sente, "    where h39.cod_empresa = h6.cod_empresa ");
-		//strpcat(C4000_sql_sente, "    --and h39.id_folio_preselecc = h6.id_folio_preselecc  "); //AM|quitar
+		strpcat(C4000_sql_sente, "    and h39.id_folio_preselecc = h6.id_folio_preselecc  ");
 		strpcat(C4000_sql_sente, "    and h39.tip_ejecucion = '%s' ) " , C010_par_tipo_ejecucion);
 	}
 		

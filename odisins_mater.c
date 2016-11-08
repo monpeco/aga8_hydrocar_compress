@@ -32,6 +32,29 @@ char C010_par_fec_fin[11];
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras datos medidores */
 /*
+variables					columna_archivo			query				tipo_dato_tabla
+C015_nro_ord_norm[16]		Nro. NORM 				NROORDEN			NUMBER (15)
+C010_nro_suministro[11]		Nro. Cliente			CLIENTE				NUMBER (10)
+C010_tarifa[11]				Tarifa					TARIFA				CHAR (10 Byte)
+C100_clave_tarifa[101]		Clave tarifa			CLAVETARIFA			VARCHAR2 (100 Byte)
+C100_comuna[101]			Comuna					COMUNA				VARCHAR2 (100 Byte)
+C003_capacidad[4]			Capacidad empalme		CAPACIDAD			3
+C020_fecha_ejecucion[21]	Fecha ejecución			FECEJECUCION		VARCHAR2 (100 Byte)
+C100_prop_medidor[101]		Propiedad medidor		PROPMEDIDOR			VARCHAR2 (100 Byte)
+C010_tipo_empalme[11]		Tipo medidor 			TIPOEMPALME			Monofasico o Trifasico
+							(monofásico, trifásico)
+C010_tecnolgia_medidor[101]	Tecnología medidor 		TECNOLOGIA			VARCHAR2 (100 Byte)
+							(electromecánico, electrónico)
+C100_tipo_medicion[101]		Tipo medida 			TIPOMEDICION		VARCHAR2 (100 Byte)
+							(directa, indirecta)
+C045_contratista[46]		Contratista				CONTRATISTA			VARCHAR2 (45 Byte)
+C001_tarea_ejecutada[2]		Tarea ejecutada			EJECUTADA			CHAR (1 Byte)
+C004_tipo_tarea[5]			Tipo Tarea				TIPOTAREA			CHAR (4 Byte)
+C050_material[51]			Material				MATERIAL			VARCHAR2 (50 Byte)
+C004_cantidad[5]			Cantidad				CANTIDAD_MATERIAL	NUMBER (4)
+C100_unidad[101]			Unidad					UNIDAD				VARCHAR2 (100 Byte)
+*/
+/*
 C015_nro_ord_norm		Nro. NORM			NROORDEN		h6.nro_ord_norm				NroOrden		NUMBER (15)
 C010_nro_suministro		Nro. Cliente		CLIENTE			h6.nro_suministro 			Cliente			NUMBER (10)
 C010_tarifa				Tarifa				TARIFA			n5.campo19 					Tarifa			CHAR (10 Byte)
@@ -54,17 +77,19 @@ char C015_nro_ord_norm[16]		;		EXEC SQL VAR C015_nro_ord_norm 		IS STRING(16) 	;
 char C010_nro_suministro[11]	;		EXEC SQL VAR C010_nro_suministro 	IS STRING(11) 	;
 char C010_tarifa[11]			;		EXEC SQL VAR C010_tarifa 			IS STRING(11) 	;
 char C100_clave_tarifa[101]		;		EXEC SQL VAR C100_clave_tarifa 		IS STRING(101) 	;
-char C100_prop_medidor[101]		;		EXEC SQL VAR C100_prop_medidor 		IS STRING(101) 	;
-char C123_tipo_ejecucion[124]	;		EXEC SQL VAR C123_tipo_ejecucion	IS STRING(124) 	;
+char C100_comuna[101]			;		EXEC SQL VAR C100_comuna			IS STRING(101) 	;
 char C003_capacidad[4]			;		EXEC SQL VAR C003_capacidad			IS STRING(4) 	;
+char C020_fecha_ejecucion[21]	;		EXEC SQL VAR C020_fecha_ejecucion	IS STRING(21) 	;
+char C100_prop_medidor[101]		;		EXEC SQL VAR C100_prop_medidor 		IS STRING(101) 	;
 char C010_tipo_empalme[11]		;		EXEC SQL VAR C010_tipo_empalme		IS STRING(11) 	;
+char C010_tecnolgia_medidor[101];		EXEC SQL VAR C010_tecnolgia_medidor	IS STRING(101) 	;
 char C100_tipo_medicion[101]	;		EXEC SQL VAR C100_tipo_medicion		IS STRING(101) 	;
 char C045_contratista[46]		;		EXEC SQL VAR C045_contratista 		IS STRING(46) 	;
-char C050_anormalidad[51]		;		EXEC SQL VAR C050_anormalidad 		IS STRING(51) 	;
-char C004_tipo_tarea[5]			;		EXEC SQL VAR C004_tipo_tarea 		IS STRING(5) 	;
 char C001_tarea_ejecutada[2]	;		EXEC SQL VAR C001_tarea_ejecutada 	IS STRING(2) 	;
-char C100_comuna[101]			;		EXEC SQL VAR C100_comuna			IS STRING(101) 	;
-char C020_fecha_ejecucion[21]	;		EXEC SQL VAR C020_fecha_ejecucion	IS STRING(21) 	;
+char C004_tipo_tarea[5]			;		EXEC SQL VAR C004_tipo_tarea 		IS STRING(5) 	;
+char C050_material[51]			;		EXEC SQL VAR C050_material			IS STRING(51) 	;
+char C004_cantidad[5]			;		EXEC SQL VAR C004_cantidad			IS STRING(5) 	;
+char C100_unidad[101]			;		EXEC SQL VAR C100_unidad			IS STRING(101) 	;
 
 
 /* Variables Uso Email */
@@ -483,7 +508,7 @@ int bfnProcesar(){
 			if(!flag_records)/*controla si hay registros*/
 			{
 				flag_records=TRUE;
-				if(!bfnCrearArchivoSalida(&fpMedidores,"Norm","Empalme","xls"))
+				if(!bfnCrearArchivoSalida(&fpMedidores,"Norm","Material","xls"))
 				{
 					return ( FALSE );
 				}

@@ -338,7 +338,7 @@ int SQL_parametros_main_email(){
 		
 	strcpy(C1024_from_name, "noreply");
 	strcpy(c1024_from_email, "no-reply@chilectra.cl");
-	strcpy(C1024_subject, "Informe Tiempos de Atención");
+	strcpy(C1024_subject, "Informe Ordenes por tipo de Empalme");
 	strpcat(C2048_body, "Estimado Usuario.\nHa finalizado la ejecución del Informe. Se generó archivo %s \n", C255_nom_file);
 		
 		if(DEBUG){

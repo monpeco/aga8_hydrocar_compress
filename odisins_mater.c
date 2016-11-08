@@ -57,24 +57,6 @@ C123_tipo_ejecucion[124]							TipoEjec			VARCHAR2 (20 Byte)+3+(100 Byte)
 C050_anormalidad									Anormalidad			VARCHAR2 (50 Byte)
 
 */
-/*
-C015_nro_ord_norm		Nro. NORM			NROORDEN		h6.nro_ord_norm				NroOrden		NUMBER (15)
-C010_nro_suministro		Nro. Cliente		CLIENTE			h6.nro_suministro 			Cliente			NUMBER (10)
-C010_tarifa				Tarifa				TARIFA			n5.campo19 					Tarifa			CHAR (10 Byte)
-C100_clave_tarifa		Clave tarifa		CLAVETARIFA		n11.descripcion				ClaveTarifa		VARCHAR2 (100 Byte)
-C100_prop_medidor		Propiedad medidor	PROPMEDIDOR		n11.descripcion				PropMedidor		VARCHAR2 (100 Byte)						
-C123_tipo_ejecucion							TIPOEJEC		n11.valor1					TipoEjec		VARCHAR2 (20 Byte)+3+
-											3+n11.descripcion							VARCHAR2 (100 Byte)
-C003_capacidad			Capacidad empalme	CAPACIDAD		substr(n11.descripcion,3,3)	Capacidad		3
-C010_tipo_empalme		Tipo medidor		TIPOEMPALME		-							TipoEmpalme		'Trifasico' or 'Monofasico'
-C100_tipo_medicion		Tipo medida			TIPOMEDICION	n11.descripcion				TipoMedicion	VARCHAR2 (100 Byte)
-C045_contratista		Contratista			CONTRATISTA		t1.nom_contratista			Contratista		VARCHAR2 (45 Byte)
-C050_anormalidad							ANORMALIDAD		h3.nom_accion 				Anormalidad		VARCHAR2 (50 Byte)
-C004_tipo_tarea			Tipo Tarea			TIPOTAREA		h3.cod_tarea 				TipoTarea		CHAR (4 Byte)
-C001_tarea_ejecutada	Tarea ejecutada		EJECUTADA		h8.ejecutada				-				CHAR (1 Byte)
-C100_comuna				Comuna				COMUNA			n11.descripcion				Comuna			VARCHAR2 (100 Byte)
-C020_fecha_ejecucion	Fecha ejecución		FECEJECUCION	h6.fec_hora_fin_eje			FecEjecucion	20
-*/
 
 char C015_nro_ord_norm[16]		;		EXEC SQL VAR C015_nro_ord_norm 		IS STRING(16) 	;
 char C010_nro_suministro[11]	;		EXEC SQL VAR C010_nro_suministro 	IS STRING(11) 	;
@@ -180,14 +162,10 @@ strpcat(C4000_sql_sente, " h8.ejecutada, ");
 strpcat(C4000_sql_sente, " (select h4.nom_material from hurssb0004 h4 where h4.cod_empresa = h12.cod_empresa and h4.cod_material = h12.cod_material) Material, ");
 strpcat(C4000_sql_sente, " h12.cantidad_material, ");
 strpcat(C4000_sql_sente, " (select n11.descripcion from hurssb0004 h4, nucssb0011 n11 where h4.cod_empresa = h12.cod_empresa and h4.cod_material = h12.cod_material ");
-//strpcat(C4000_sql_sente, " and h4.cod_empresa = n11.cod_empresa and h4.unidad= n11.codigo and n11.nomtabla = 'UNIMAT') Unidad ");
-
 strpcat(C4000_sql_sente, " and h4.cod_empresa = n11.cod_empresa and h4.unidad= n11.codigo and n11.nomtabla = 'UNIMAT') Unidad, ");
 strpcat(C4000_sql_sente, " (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n19.cod_empresa and n11.nomtabla = 'COMUNA' and n19.campo22 = n11.codigo) Comuna, ");
 strpcat(C4000_sql_sente, " to_char(h6.fec_hora_fin_eje ,'dd/mm/yyyy hh24:mi:ss') FecEjecucion ");
 strpcat(C4000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11,hurssb0012 h12,nucssb0019 n19 ");
-
-//strpcat(C4000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11,hurssb0012 h12 ");
 strpcat(C4000_sql_sente, " where h6.cod_empresa = %s  " , C003_par_empresa);
 strpcat(C4000_sql_sente, " and h6.tip_ord_norm = 'O' ");
 strpcat(C4000_sql_sente, " and h6.fec_hora_ini_eje >= to_date('%s' || ' 00:00:00' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_inicio);
@@ -210,88 +188,13 @@ strpcat(C4000_sql_sente, " and n11.nomtabla = 'EMPAL' ");
 strpcat(C4000_sql_sente, " and h6.cod_empresa = h12.cod_empresa ");
 strpcat(C4000_sql_sente, " and h6.nro_ord_norm = h12.nro_ord_norm ");
 strpcat(C4000_sql_sente, " and h6.tip_ord_norm = h12.tip_ord_norm ");
-
 strpcat(C4000_sql_sente, " and h6.nro_suministro  = n19.nro_suministro ");
 strpcat(C4000_sql_sente, " and h6.cod_empresa = n19.cod_empresa ");
 strpcat(C4000_sql_sente, " and n19.tip_dir = 'S' ");
 
 strpcat(C4000_sql_sente, " order by h6.nro_ord_norm \n ");
 
-	
-	/*strcpy(C4000_sql_sente, " select  ");
-	strpcat(C4000_sql_sente, " h6.nro_ord_norm NroOrden, ");
-	strpcat(C4000_sql_sente, " h6.nro_suministro Cliente, ");
-	strpcat(C4000_sql_sente, " n5.campo19 Tarifa, ");
-	strpcat(C4000_sql_sente, " (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n5.cod_empresa and n11.nomtabla = 'CLATAR' and trim(n5.campo20) = n11.codigo) ClaveTarifa, ");
-	strpcat(C4000_sql_sente, " (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = m11.cod_empresa and n11.nomtabla = 'PROMEDI' and m11.propiedad_equipo = n11.codigo) PropMedidor, ");
-	strpcat(C4000_sql_sente, "    (select n11.valor1 || ' - ' || n11.descripcion   ");
-	strpcat(C4000_sql_sente, "    from hurssb0039 h39,nucssb0011 n11   ");
-	strpcat(C4000_sql_sente, "    where h39.cod_empresa = h6.cod_empresa   ");
-	strpcat(C4000_sql_sente, "    and h39.id_folio_preselecc = h6.id_folio_preselecc   ");
-	strpcat(C4000_sql_sente, "    and n11.cod_empresa = h6.cod_empresa   ");
-	strpcat(C4000_sql_sente, "    and n11.nomtabla = 'EJEINSP'  and n11.codigo=h39.tip_ejecucion) TipoEjec, ");
-	strpcat(C4000_sql_sente, " substr(n11.descripcion,3,3) Capacidad, ");
-	strpcat(C4000_sql_sente, "    (case  ");
-	strpcat(C4000_sql_sente, "        when substr(n11.descripcion,2,1) in (' ','R','U','E','C','I') then ");
-	strpcat(C4000_sql_sente, "            'Trifasico' ");
-	strpcat(C4000_sql_sente, "        else ");
-	strpcat(C4000_sql_sente, "            'Monofasico' ");
-	strpcat(C4000_sql_sente, "        end ");
-	strpcat(C4000_sql_sente, "    ) TipoEmpalme, ");
-	strpcat(C4000_sql_sente, "    (select n11.descripcion  ");
-	strpcat(C4000_sql_sente, "    from medssb0027 m27, nucssb0011 n11  ");
-	strpcat(C4000_sql_sente, "    where m27.cod_empresa = m11.cod_empresa  ");
-	strpcat(C4000_sql_sente, "    and m27.cod_funmed = substr(m11.cod_modelo,1,1) ");
-	strpcat(C4000_sql_sente, "    and m27.cod_empresa = n11.cod_empresa ");
-	strpcat(C4000_sql_sente, "    and n11.nomtabla='CODMEDI'  ");
-	strpcat(C4000_sql_sente, "    and trim(n11.codigo) = trim(m27.cod_medida)) TipoMedicion, ");
-	strpcat(C4000_sql_sente, " (select t1.nom_contratista from tasssb0001 t1 where t1.cod_empresa = h6.cod_empresa and t1.cod_contratista = h6.cod_contratista) Contratista, ");
-	strpcat(C4000_sql_sente, " h3.nom_accion Anormalidad, ");
-	strpcat(C4000_sql_sente, " h3.cod_tarea TipoTarea,  ");
-	strpcat(C4000_sql_sente, " h8.ejecutada, ");
-	strpcat(C4000_sql_sente, " (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n19.cod_empresa and n11.nomtabla = 'COMUNA' and n19.campo22 = n11.codigo) Comuna, ");
-	strpcat(C4000_sql_sente, " to_char(h6.fec_hora_fin_eje ,'dd/mm/yyyy hh24:mi:ss') FecEjecucion ");
-	strpcat(C4000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11,nucssb0019 n19 ");
-	strpcat(C4000_sql_sente, " where h6.cod_empresa = %s  " , C003_par_empresa);
-	strpcat(C4000_sql_sente, "    and h6.tip_ord_norm = 'O' ");
-	strpcat(C4000_sql_sente, "    and h6.fec_hora_ini_eje >= to_date('%s' || ' 00:00:00' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_inicio);
-	strpcat(C4000_sql_sente, "    and h6.fec_hora_ini_eje <= to_date('%s' || ' 23:59:59' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_fin);
-	strpcat(C4000_sql_sente, "    and h6.est_orden = 'F' ");
-	strpcat(C4000_sql_sente, "    and h6.cod_empresa = h8.cod_empresa ");
-	strpcat(C4000_sql_sente, "    and h6.nro_ord_norm = h8.nro_ord_norm ");
-	strpcat(C4000_sql_sente, "    and h6.tip_ord_norm = h8.tip_ord_norm ");
-	strpcat(C4000_sql_sente, "    and h8.cod_empresa = h3.cod_empresa ");
-	strpcat(C4000_sql_sente, "    and h8.cod_accion = h3.cod_accion ");
-	strpcat(C4000_sql_sente, "    and h6.nro_suministro = n5.nro_suministro ");
-	strpcat(C4000_sql_sente, "    and h6.cod_empresa = n5.cod_empresa ");
-	strpcat(C4000_sql_sente, "    and h6.nro_suministro  = m11.nro_suministro  ");
-	strpcat(C4000_sql_sente, "    and h6.cod_empresa = m11.cod_empresa ");
-	strpcat(C4000_sql_sente, "    and m11.est_aparato = 'I' ");
-	strpcat(C4000_sql_sente, "    and m11.tip_aparato = 'ME' ");
-	strpcat(C4000_sql_sente, "    and n11.cod_empresa = n5.cod_empresa  ");
-	strpcat(C4000_sql_sente, "    and n11.codigo = n5.tip_empalme ");
-	strpcat(C4000_sql_sente, "    and n11.nomtabla = 'EMPAL' ");
-	strpcat(C4000_sql_sente, "    and n11.estado = 'A'  ");
-	strpcat(C4000_sql_sente, "    and h6.nro_suministro  = n19.nro_suministro  ");
-	strpcat(C4000_sql_sente, "    and h6.cod_empresa = n19.cod_empresa  ");
-	strpcat(C4000_sql_sente, "    and n19.tip_dir = 'S'  ");
-	
-	if (strcmp(C010_par_tipo_ejecucion,"TOD")!=0){
-		strpcat(C4000_sql_sente, "    and exists ");
-		strpcat(C4000_sql_sente, "    (select 1 ");
-		strpcat(C4000_sql_sente, "    from hurssb0039 h39 ");
-		strpcat(C4000_sql_sente, "    where h39.cod_empresa = h6.cod_empresa ");
-		strpcat(C4000_sql_sente, "    and h39.id_folio_preselecc = h6.id_folio_preselecc  ");
-		strpcat(C4000_sql_sente, "    and h39.tip_ejecucion = '%s' ) " , C010_par_tipo_ejecucion);
-	}
-		
-	if (strcmp(C010_par_origen,"TOD")!=0){
-		strpcat(C4000_sql_sente, "    and h6.TIP_ORD_ORIGEN = '%s'  " , C010_par_origen);
-	}
-		
-	strpcat(C4000_sql_sente, " order by h6.nro_ord_norm ");
-	*/
-	
+
 	EXEC SQL DECLARE p_medidores STATEMENT;
     do_error("DECLARE p_medidores (SQL_OPEN_medidores)");
 
@@ -455,7 +358,7 @@ int SQL_parametros_main_email(){
 		
 	strcpy(C1024_from_name, "noreply");
 	strcpy(c1024_from_email, "no-reply@chilectra.cl");
-	strcpy(C1024_subject, "Informe Tiempos de Atención");
+	strcpy(C1024_subject, "Informe Materiales");
 	strpcat(C2048_body, "Estimado Usuario.\nHa finalizado la ejecución del Informe. Se generó archivo %s \n", C255_nom_file);
 		
 		if(DEBUG){

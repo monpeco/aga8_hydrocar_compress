@@ -133,7 +133,6 @@ SQL_OPEN_medidores(){
 	
 strcpy(C4000_sql_sente, "  ");
 strpcat(C4000_sql_sente, " select  ");
-strpcat(C4000_sql_sente, " h6.fec_hora_ini_eje , ");
 strpcat(C4000_sql_sente, " h6.nro_ord_norm NroOrden, ");
 strpcat(C4000_sql_sente, " h6.nro_suministro Cliente, ");
 strpcat(C4000_sql_sente, " n5.campo19 Tarifa, ");
@@ -200,6 +199,7 @@ strpcat(C4000_sql_sente, " and n11.nomtabla = 'EMPAL' ");
 strpcat(C4000_sql_sente, " and h6.cod_empresa = h12.cod_empresa ");
 strpcat(C4000_sql_sente, " and h6.nro_ord_norm = h12.nro_ord_norm ");
 strpcat(C4000_sql_sente, " and h6.tip_ord_norm = h12.tip_ord_norm ");
+strpcat(C4000_sql_sente, " order by h6.nro_ord_norm \n ");
 
 	
 	/*strcpy(C4000_sql_sente, " select  ");
@@ -307,23 +307,26 @@ int SQL_FETCH_medidores(){
 	memset(C010_nro_suministro, '\0', sizeof(C010_nro_suministro));
 	memset(C010_tarifa, '\0', sizeof(C010_tarifa));
 	memset(C100_clave_tarifa, '\0', sizeof(C100_clave_tarifa));
-	memset(C100_prop_medidor, '\0', sizeof(C100_prop_medidor));
-	memset(C123_tipo_ejecucion, '\0', sizeof(C123_tipo_ejecucion));
+	memset(C100_comuna, '\0', sizeof(C100_comuna));
 	memset(C003_capacidad, '\0', sizeof(C003_capacidad));
+	memset(C020_fecha_ejecucion, '\0', sizeof(C020_fecha_ejecucion));
+	memset(C100_prop_medidor, '\0', sizeof(C100_prop_medidor));
 	memset(C010_tipo_empalme, '\0', sizeof(C010_tipo_empalme));
+	memset(C010_tecnolgia_medidor, '\0', sizeof(C010_tecnolgia_medidor));
 	memset(C100_tipo_medicion, '\0', sizeof(C100_tipo_medicion));
 	memset(C045_contratista, '\0', sizeof(C045_contratista));
-	memset(C050_anormalidad, '\0', sizeof(C050_anormalidad));
-	memset(C004_tipo_tarea, '\0', sizeof(C004_tipo_tarea));
 	memset(C001_tarea_ejecutada, '\0', sizeof(C001_tarea_ejecutada));
-	memset(C100_comuna, '\0', sizeof(C100_comuna));
-	memset(C020_fecha_ejecucion, '\0', sizeof(C020_fecha_ejecucion));
+	memset(C004_tipo_tarea, '\0', sizeof(C004_tipo_tarea));
+	memset(C050_material, '\0', sizeof(C050_material));
+	memset(C004_cantidad, '\0', sizeof(C004_cantidad));
+	memset(C100_unidad, '\0', sizeof(C100_unidad));
 
     EXEC SQL 
 		FETCH cur_medidores 
-		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_prop_medidor
-		,:C123_tipo_ejecucion,:C003_capacidad,:C010_tipo_empalme,:C100_tipo_medicion,:C045_contratista
-		,:C050_anormalidad,:C004_tipo_tarea,:C001_tarea_ejecutada,:C100_comuna,:C020_fecha_ejecucion;
+		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_comuna
+		,:C003_capacidad,:C020_fecha_ejecucion,:C100_prop_medidor,:C010_tipo_empalme,:C010_tecnolgia_medidor
+		,:C100_tipo_medicion,:C045_contratista,:C001_tarea_ejecutada,:C004_tipo_tarea,:C050_material
+		,:C004_cantidad,:C100_unidad;
 
     iRet = do_error("FETCH cur_medidores (SQL_FETCH_medidores)");
     if ( iRet == TRUE )

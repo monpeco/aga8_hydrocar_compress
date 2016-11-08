@@ -32,7 +32,7 @@ char C010_par_fec_fin[11];
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras datos medidores */
 /*
-variables					columna_archivo			query				tipo_dato_tabla
+variables					columna_archivo(+)		query				tipo_dato_tabla
 C015_nro_ord_norm[16]		Nro. NORM 				NROORDEN			NUMBER (15)
 C010_nro_suministro[11]		Nro. Cliente			CLIENTE				NUMBER (10)
 C010_tarifa[11]				Tarifa					TARIFA				CHAR (10 Byte)
@@ -53,6 +53,9 @@ C004_tipo_tarea[5]			Tipo Tarea				TIPOTAREA			CHAR (4 Byte)
 C050_material[51]			Material				MATERIAL			VARCHAR2 (50 Byte)
 C004_cantidad[5]			Cantidad				CANTIDAD_MATERIAL	NUMBER (4)
 C100_unidad[101]			Unidad					UNIDAD				VARCHAR2 (100 Byte)
+C123_tipo_ejecucion[124]							TipoEjec			VARCHAR2 (20 Byte)+3+(100 Byte)
+C050_anormalidad									Anormalidad			VARCHAR2 (50 Byte)
+
 */
 /*
 C015_nro_ord_norm		Nro. NORM			NROORDEN		h6.nro_ord_norm				NroOrden		NUMBER (15)
@@ -90,6 +93,8 @@ char C004_tipo_tarea[5]			;		EXEC SQL VAR C004_tipo_tarea 		IS STRING(5) 	;
 char C050_material[51]			;		EXEC SQL VAR C050_material			IS STRING(51) 	;
 char C004_cantidad[5]			;		EXEC SQL VAR C004_cantidad			IS STRING(5) 	;
 char C100_unidad[101]			;		EXEC SQL VAR C100_unidad			IS STRING(101) 	;
+char C123_tipo_ejecucion[124]	;		EXEC SQL VAR C123_tipo_ejecucion	IS STRING(124) 	;
+char C050_anormalidad[51]		;		EXEC SQL VAR C050_anormalidad 		IS STRING(51) 	;
 
 
 /* Variables Uso Email */
@@ -175,8 +180,14 @@ strpcat(C4000_sql_sente, " h8.ejecutada, ");
 strpcat(C4000_sql_sente, " (select h4.nom_material from hurssb0004 h4 where h4.cod_empresa = h12.cod_empresa and h4.cod_material = h12.cod_material) Material, ");
 strpcat(C4000_sql_sente, " h12.cantidad_material, ");
 strpcat(C4000_sql_sente, " (select n11.descripcion from hurssb0004 h4, nucssb0011 n11 where h4.cod_empresa = h12.cod_empresa and h4.cod_material = h12.cod_material ");
-strpcat(C4000_sql_sente, " and h4.cod_empresa = n11.cod_empresa and h4.unidad= n11.codigo and n11.nomtabla = 'UNIMAT') Unidad ");
-strpcat(C4000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11,hurssb0012 h12 ");
+//strpcat(C4000_sql_sente, " and h4.cod_empresa = n11.cod_empresa and h4.unidad= n11.codigo and n11.nomtabla = 'UNIMAT') Unidad ");
+
+strpcat(C4000_sql_sente, " and h4.cod_empresa = n11.cod_empresa and h4.unidad= n11.codigo and n11.nomtabla = 'UNIMAT') Unidad, ");
+strpcat(C4000_sql_sente, " (select n11.descripcion from nucssb0011 n11 where n11.cod_empresa = n19.cod_empresa and n11.nomtabla = 'COMUNA' and n19.campo22 = n11.codigo) Comuna, ");
+strpcat(C4000_sql_sente, " to_char(h6.fec_hora_fin_eje ,'dd/mm/yyyy hh24:mi:ss') FecEjecucion ");
+strpcat(C4000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11,hurssb0012 h12,nucssb0019 n19 ");
+
+//strpcat(C4000_sql_sente, " from hurssb0006 h6, hurssb0008 h8, nucssb0005 n5, hurssb0003 h3,medssb0011 m11, nucssb0011 n11,hurssb0012 h12 ");
 strpcat(C4000_sql_sente, " where h6.cod_empresa = %s  " , C003_par_empresa);
 strpcat(C4000_sql_sente, " and h6.tip_ord_norm = 'O' ");
 strpcat(C4000_sql_sente, " and h6.fec_hora_ini_eje >= to_date('%s' || ' 00:00:00' , 'dd/mm/yyyy hh24:mi:ss') ", C010_par_fec_inicio);
@@ -199,6 +210,11 @@ strpcat(C4000_sql_sente, " and n11.nomtabla = 'EMPAL' ");
 strpcat(C4000_sql_sente, " and h6.cod_empresa = h12.cod_empresa ");
 strpcat(C4000_sql_sente, " and h6.nro_ord_norm = h12.nro_ord_norm ");
 strpcat(C4000_sql_sente, " and h6.tip_ord_norm = h12.tip_ord_norm ");
+
+strpcat(C4000_sql_sente, " and h6.nro_suministro  = n19.nro_suministro ");
+strpcat(C4000_sql_sente, " and h6.cod_empresa = n19.cod_empresa ");
+strpcat(C4000_sql_sente, " and n19.tip_dir = 'S' ");
+
 strpcat(C4000_sql_sente, " order by h6.nro_ord_norm \n ");
 
 	
@@ -320,13 +336,15 @@ int SQL_FETCH_medidores(){
 	memset(C050_material, '\0', sizeof(C050_material));
 	memset(C004_cantidad, '\0', sizeof(C004_cantidad));
 	memset(C100_unidad, '\0', sizeof(C100_unidad));
+	memset(C123_tipo_ejecucion, '\0', sizeof(C123_tipo_ejecucion));
+	memset(C050_anormalidad, '\0', sizeof(C050_anormalidad));
 
-    EXEC SQL 
+    EXEC SQL  
 		FETCH cur_medidores 
-		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_comuna
-		,:C003_capacidad,:C020_fecha_ejecucion,:C100_prop_medidor,:C010_tipo_empalme,:C010_tecnolgia_medidor
-		,:C100_tipo_medicion,:C045_contratista,:C001_tarea_ejecutada,:C004_tipo_tarea,:C050_material
-		,:C004_cantidad,:C100_unidad;
+		INTO :C015_nro_ord_norm,:C010_nro_suministro,:C010_tarifa,:C100_clave_tarifa,:C100_prop_medidor
+		,:C123_tipo_ejecucion,:C003_capacidad,:C010_tipo_empalme,:C010_tecnolgia_medidor,:C100_tipo_medicion
+		,:C045_contratista,:C050_anormalidad,:C004_tipo_tarea,:C001_tarea_ejecutada,:C050_material
+		,:C004_cantidad,:C100_unidad,:C100_comuna,:C020_fecha_ejecucion;
 
     iRet = do_error("FETCH cur_medidores (SQL_FETCH_medidores)");
     if ( iRet == TRUE )
@@ -535,6 +553,8 @@ int bfnProcesar(){
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-13.13s","Tipo medidor");
 				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-101.101s","Tecnología medidor");
+				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-101.101s","Tipo medida");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-46.46s","Contratista");
@@ -542,6 +562,12 @@ int bfnProcesar(){
 				strpcat(C5000_Buffer,"%-16.16s","Tarea ejecutada");
 				strpcat(C5000_Buffer,"%c",delimiter);
 				strpcat(C5000_Buffer,"%-11.11s","Tipo Tarea");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-51.51s","Material");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-9.9s","Cantidad");
+				strpcat(C5000_Buffer,"%c",delimiter);
+				strpcat(C5000_Buffer,"%-101.101s","Unidad");
 
 				strpcat(C5000_Buffer,"%s","\n");
 			}
@@ -565,6 +591,8 @@ int bfnProcesar(){
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-13.13s",C010_tipo_empalme);
 			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-101.101s",C010_tecnolgia_medidor);
+			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-101.101s",C100_tipo_medicion);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-46.46s",C045_contratista);
@@ -572,6 +600,12 @@ int bfnProcesar(){
 			strpcat(C5000_Buffer,"%-16.16s",C001_tarea_ejecutada);
 			strpcat(C5000_Buffer,"%c",delimiter);			
 			strpcat(C5000_Buffer,"%-11.11s",C004_tipo_tarea);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-51.51s",C050_material);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-9.9s",C004_cantidad);
+			strpcat(C5000_Buffer,"%c",delimiter);			
+			strpcat(C5000_Buffer,"%-101.101s",C100_unidad);
 
 			strpcat(C5000_Buffer,"%s","\n");
 			

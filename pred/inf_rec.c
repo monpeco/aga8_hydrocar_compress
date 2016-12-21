@@ -11,9 +11,14 @@ EXEC SQL INCLUDE parametros.h;
 /*                            DECLARACIÓN DE VARIABLES                            */
 /* ------------------------------------------------------------------------------ */
 char C010_par_fec_proceso[11];
+char C001_par_conexion[2];
 
 /* Variables Generales */
 #define DEBUG 0
+
+/* Constantes interacción db */
+#define NODATAFOUND 1403
+#define SQLNOTFOUND ( sqlca.sqlcode == NODATAFOUND )
 
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras recaudadores 
@@ -60,15 +65,15 @@ SQL_OPEN_recaudadores(){
     strpcat(C4000_sql_sente,   "         decode(cod_cajero,0097,1,0098,2,0089,3,0099,4,0095,5,0096,6,0088,7,0098,8,0087,9) orden  "  );
     strpcat(C4000_sql_sente,   "  from RECSSB0034 r34  "  );
     strpcat(C4000_sql_sente,   "  where cod_empresa = 1  "  );
-    strpcat(C4000_sql_sente,   "    and cod_cajero in (97, -- caja vecina 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       98, -- serviestado 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       99, -- portal intenet 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       95, -- servipag 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       96, -- servipag expres 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       88, -- presto 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       98, -- unired 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       89, -- serviestado 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       87  -- web pay 14:00 a 13:59   "  );
+    strpcat(C4000_sql_sente,   "    and cod_cajero in (97, /* caja vecina 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       98, /* serviestado 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       99, /* portal intenet 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       95, /* servipag 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       96, /* servipag expres 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       88, /* presto 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       98, /* unired 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       89, /* serviestado 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       87  /* web pay 14:00 a 13:59  */ "  );
     strpcat(C4000_sql_sente,   "                      )  "  );
     strpcat(C4000_sql_sente,   "    and FEC_PAGO between to_date('%s'||' 14:00:00','dd/mm/yyyy hh24:mi:ss') and to_date('%s'||' 13:59:59','dd/mm/yyyy hh24:mi:ss')+1  "  , C010_par_fec_proceso, C010_par_fec_proceso);
     strpcat(C4000_sql_sente,   "  union  "  );
@@ -76,31 +81,31 @@ SQL_OPEN_recaudadores(){
     strpcat(C4000_sql_sente,   "         decode(cod_cajero,4015,1,4016,2,4017,3,4022,4,4013,5,4017,6,4020,7,4021,8,4019,9) orden  "  );
     strpcat(C4000_sql_sente,   "  from RECSSB0034 r34  "  );
     strpcat(C4000_sql_sente,   "  where cod_empresa = 2  "  );
-    strpcat(C4000_sql_sente,   "    and cod_cajero in (4015, -- caja vecina 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       4016, -- serviestado 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       4017, -- portal intenet 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       4013, -- servipag 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       4017, -- servipag expres 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       4022, -- bancoestado  "  );
-    strpcat(C4000_sql_sente,   "                       4020, -- presto 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       4021, -- unired 14:00 a 13:59  "  );
-    strpcat(C4000_sql_sente,   "                       4019 -- web pay 14:00 a 13:59  "  );
+    strpcat(C4000_sql_sente,   "    and cod_cajero in (4015, /* caja vecina 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       4016, /* serviestado 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       4017, /* portal intenet 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       4013, /* servipag 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       4017, /* servipag expres 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       4022, /* bancoestado */ "  );
+    strpcat(C4000_sql_sente,   "                       4020, /* presto 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       4021, /* unired 14:00 a 13:59 */ "  );
+    strpcat(C4000_sql_sente,   "                       4019 /* web pay 14:00 a 13:59 */ "  );
     strpcat(C4000_sql_sente,   "                      )  "  );
     strpcat(C4000_sql_sente,   "   and FEC_PAGO between to_date('%s'||' 14:00:00','dd/mm/yyyy hh24:mi:ss') and to_date('%s'||' 13:59:59','dd/mm/yyyy hh24:mi:ss')+1  "  , C010_par_fec_proceso, C010_par_fec_proceso);
     strpcat(C4000_sql_sente,   "  order by COD_EMPRESA, orden  "  );
     strpcat(C4000_sql_sente,   "  )  "  );
 
-    EXEC SQL DECLARE p_medidores STATEMENT;
-    do_error("DECLARE p_medidores (SQL_OPEN_medidores)");
+    EXEC SQL DECLARE p_recaudadores STATEMENT;
+    do_error("DECLARE p_recaudadores (SQL_OPEN_recaudadores)");
 
-    EXEC SQL PREPARE p_medidores FROM :C4000_sql_sente;
-    do_error("PREPARE p_medidores (SQL_OPEN_medidores)");
+    EXEC SQL PREPARE p_recaudadores FROM :C4000_sql_sente;
+    do_error("PREPARE p_recaudadores (SQL_OPEN_recaudadores)");
 
-    EXEC SQL DECLARE cur_medidores CURSOR FOR p_medidores;
-    do_error("DECLARE cur_medidores (SQL_OPEN_medidores)");
+    EXEC SQL DECLARE cur_recaudadores CURSOR FOR p_recaudadores;
+    do_error("DECLARE cur_recaudadores (SQL_OPEN_recaudadores)");
 
-    EXEC SQL OPEN cur_medidores;
-    do_error("OPEN cur_medidores (SQL_OPEN_medidores)");
+    EXEC SQL OPEN cur_recaudadores;
+    do_error("OPEN cur_recaudadores (SQL_OPEN_recaudadores)");
 
     /* Debugger */
     if(DEBUG){
@@ -113,15 +118,58 @@ SQL_OPEN_recaudadores(){
     return ( TRUE );
 }
 /* ------------------------------------------------------------------------------ */
+/*                            FETCH CURSOR PRINCIPAL                              */
+/* ------------------------------------------------------------------------------ */
+int SQL_FETCH_recaudadores(){
+    int iRet=0;
+    
+    memset(C002_cod_empresa,'\0', sizeof(C002_cod_empresa));
+    memset(C004_cod_oficina,'\0', sizeof(C004_cod_oficina));
+    memset(C004_cod_cajero,'\0', sizeof(C004_cod_cajero));
+    memset(C002_est_pago,'\0', sizeof(C002_est_pago));
+    memset(C010_fec_pago,'\0', sizeof(C010_fec_pago));
+    memset(C010_fec_registro,'\0', sizeof(C010_fec_registro));
+    memset(C010_nro_suministro,'\0', sizeof(C010_nro_suministro));
+    memset(C022_nro_transaccion,'\0', sizeof(C022_nro_transaccion));
+    memset(C050_nro_tran_reca,'\0', sizeof(C050_nro_tran_reca));
+    memset(C015_mto_pago,'\0', sizeof(C015_mto_pago));
+    memset(C003_tip_pago,'\0', sizeof(C003_tip_pago));
+
+    EXEC SQL  
+        FETCH cur_recaudadores 
+        INTO :C002_cod_empresa,:C004_cod_oficina,:C004_cod_cajero,:C002_est_pago,:C010_fec_pago
+        ,:C010_fec_registro,:C010_nro_suministro,:C022_nro_transaccion,:C050_nro_tran_reca,:C015_mto_pago
+        ,:C003_tip_pago;
+
+    iRet = do_error("FETCH cur_recaudadores (SQL_FETCH_recaudadores)");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+    /* Debugger */
+    if(DEBUG){
+        printf("------------------------------------------------------\n");
+        printf("DEBUG[SQL_FETCH_recaudadores]\n");
+        printf("Resultado OK\n");
+        printf("------------------------------------------------------\n\n");
+    }
+
+    if(SQLNOTFOUND){return ( FALSE );}
+    else		   {return ( TRUE );}
+}    
+/* ------------------------------------------------------------------------------ */
 /*                            PROCESAMIENTO DE DATOS                              */
 /* ------------------------------------------------------------------------------ */
 int bfnProcesar(){
     FILE    *fpRecaudadores=NULL;
     char    C5000_Buffer[5001];    EXEC SQL VAR C5000_Buffer IS STRING(5001);
     
-    if (SQL_OPEN_recaudadores())
-	{
+    if (SQL_OPEN_recaudadores()){
         
+        while (SQL_FETCH_recaudadores()){
+            
+            memset(C5000_Buffer, '\0', sizeof(C5000_Buffer));
+
+        }
     }
     return ( TRUE );
 }
@@ -130,13 +178,15 @@ int bfnProcesar(){
 /* ------------------------------------------------------------------------------ */
 main(int argc,char **argv)
 {
-   if( argc != 2){
+   if( argc != 3){
         printf("Use : %s <fecha_proceso>\n",argv[0]);
         exit(1);
     }
     
-    strcpy(C010_par_fec_proceso, argv[1]);
-
+    strcpy(C001_par_conexion, argv[1]);
+    strcpy(C010_par_fec_proceso, argv[2]);
+    
+    sql_conexion(C001_par_conexion);
 
     if(!bfnProcesar()){
         printf("Error\n");
@@ -145,4 +195,5 @@ main(int argc,char **argv)
         printf("OK\n");
         exit(0);
     }
-}               
+}
+

@@ -243,7 +243,7 @@ int bfnProcesar(){
 main(int argc,char **argv)
 {
    if( argc != 3){
-        printf("Use : %s <fecha_proceso>\n",argv[0]);
+        printf("Use : %s <conexion> <fecha_proceso>\n",argv[0]);
         exit(1);
     }
     

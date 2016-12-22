@@ -7,11 +7,14 @@
 
 EXEC SQL INCLUDE parametros.h;
 
+const char *PATH = "/tmp/";
 /* ------------------------------------------------------------------------------ */
 /*                            DECLARACIÓN DE VARIABLES                            */
 /* ------------------------------------------------------------------------------ */
 char C010_par_fec_proceso[11];
 char C001_par_conexion[2];
+//char	C255_nom_file[256]		;	 		EXEC SQL VAR C255_nom_file		IS STRING(256)	;
+char C255_nom_file[256];
 
 /* Variables Generales */
 #define DEBUG 0
@@ -50,6 +53,54 @@ char C015_mto_pago[16]        ;    EXEC SQL VAR C015_mto_pago IS STRING(16)     
 char C003_tip_pago[4]         ;    EXEC SQL VAR C003_tip_pago IS STRING(4)         ;
 
 EXEC SQL END DECLARE SECTION;
+
+
+/* ------------------------------------------------------------------------------ */
+/*                Crea archivo de salida en base a los prefijos                   */
+/*                y la ruta que recupera de NUCSSB0044                            */
+/* ------------------------------------------------------------------------------ */
+
+/* Crea archivo de salida en base a los prefijos y la ruta que recupera de NUCSSB0044     */
+int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){/**/
+    int iRet=0;
+    char C256_pat_unix[256]; EXEC SQL VAR C256_pat_unix IS STRING(256);
+    char C020_fecha[20]; EXEC SQL VAR C020_fecha IS STRING(20);
+
+    memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
+    memset(C020_fecha, '\0', sizeof(C020_fecha));
+    memset(C255_nom_file, '\0', sizeof(C255_nom_file));
+
+    /* Obtiene path unix */
+    strcpy(C256_pat_unix, PATH);
+
+	/* Obtiene fecha del sistema */
+    EXEC SQL
+         SELECT  TO_CHAR( sysdate, 'ddmmyyyy' )
+         INTO    :C020_fecha
+         FROM    DUAL;
+    iRet = do_error("Select SYSDATE");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+	/* Crea archivo de salida */
+	sprintf(C255_nom_file, "%s%s_%s_%s.%s", C256_pat_unix,prefix1,prefix2,C020_fecha,ext);
+	if( ( *fpOut = fopen( C255_nom_file, "w+" ) ) == NULL )
+	{
+		printf("ERR|Error al Generar Archivo <%s>. Error %s\n", 
+			   C255_nom_file, strerror(errno));
+		return ( FALSE );
+	}
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[ifnCrearArchivoSalida]\n");
+		printf("Resultado [%s] OK\n",C255_nom_file);
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
 
 /* ------------------------------------------------------------------------------ */
 /*                            ABRE CURSOR PRINCIPAL                               */
@@ -154,7 +205,7 @@ int SQL_FETCH_recaudadores(){
     }
 
     if(SQLNOTFOUND){return ( FALSE );}
-    else		   {return ( TRUE );}
+    else {return ( TRUE );}
 }    
 /* ------------------------------------------------------------------------------ */
 /*                            PROCESAMIENTO DE DATOS                              */
@@ -162,13 +213,19 @@ int SQL_FETCH_recaudadores(){
 int bfnProcesar(){
     FILE    *fpRecaudadores=NULL;
     char    C5000_Buffer[5001];    EXEC SQL VAR C5000_Buffer IS STRING(5001);
+    int flag_records=FALSE;
     
     if (SQL_OPEN_recaudadores()){
         
         while (SQL_FETCH_recaudadores()){
             
             memset(C5000_Buffer, '\0', sizeof(C5000_Buffer));
-
+            if(!flag_records){ /*controla si hay registros*/
+                flag_records=TRUE;
+                if(!bfnCrearArchivoSalida(&fpRecaudadores,"Informe","Recaudadores","csv")){
+                return ( FALSE );
+                }
+            }
         }
     }
     return ( TRUE );

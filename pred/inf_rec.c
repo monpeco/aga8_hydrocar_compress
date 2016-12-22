@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------------ */
-/* PROGRAMA          : odisins_mater.pc                                           */
+/* PROGRAMA          : inf_rec.pc                                                 */
 /* DESCRIPCION       : Automatización de informe de recaudadores                  */
 /* PROGRAMADOR       : AM                                                         */
 /* FECHA             : Diciembre 2016                                             */
@@ -8,6 +8,8 @@
 EXEC SQL INCLUDE parametros.h;
 
 const char *PATH = "/tmp/";
+const char SEPARADOR_CABECERA = ' ';
+const char SEPARADOR_CUERPO = ';';
 /* ------------------------------------------------------------------------------ */
 /*                            DECLARACIÓN DE VARIABLES                            */
 /* ------------------------------------------------------------------------------ */
@@ -214,6 +216,7 @@ int bfnProcesar(){
     FILE    *fpRecaudadores=NULL;
     char    C5000_Buffer[5001];    EXEC SQL VAR C5000_Buffer IS STRING(5001);
     int flag_records=FALSE;
+    char delimiter=SEPARADOR_CABECERA;
     
     if (SQL_OPEN_recaudadores()){
         
@@ -223,8 +226,12 @@ int bfnProcesar(){
             if(!flag_records){ /*controla si hay registros*/
                 flag_records=TRUE;
                 if(!bfnCrearArchivoSalida(&fpRecaudadores,"Informe","Recaudadores","csv")){
-                return ( FALSE );
+                    return ( FALSE );
                 }
+                
+                /* Encabezado archivo */
+                strpcat(C5000_Buffer,"%-16.16s","Nro. NORM");
+                strpcat(C5000_Buffer,"%c",delimiter);
             }
         }
     }

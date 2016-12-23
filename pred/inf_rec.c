@@ -8,11 +8,9 @@
 EXEC SQL INCLUDE parametros.h;
 
 const char *PATH = "/tmp/";
-const char SEPARADOR_CABECERA = ' ';
-const char SEPARADOR_CUERPO = ';';
+const char SEPARADOR = ';';
 /* ------------------------------------------------------------------------------ */
 /*                            DECLARACIÓN DE VARIABLES                            */
-
 /* ------------------------------------------------------------------------------ */
 char C010_par_fec_proceso[11];
 char C001_par_conexion[2];
@@ -97,7 +95,7 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
 	/* Debugger */
 	if(DEBUG){
 		printf("------------------------------------------------------\n");
-		printf("DEBUG[ifnCrearArchivoSalida]\n");
+		printf("DEBUG[bfnCrearArchivoSalida]\n");
 		printf("Resultado [%s] OK\n",C255_nom_file);
 		printf("------------------------------------------------------\n\n");
 	}
@@ -105,6 +103,22 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
 	return ( TRUE );
 }
 
+int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
+	int iRet = TRUE;
+
+	fprintf(fpOut, "%s",cBuffer);
+
+	/* Debugger */
+	if(DEBUG){
+		printf("------------------------------------------------------\n");
+		printf("DEBUG[bfnAgregarArchivoSalida]\n");
+		printf("[%s\n]",cBuffer);
+		printf("Resultado OK\n");
+		printf("------------------------------------------------------\n\n");
+	}
+
+	return ( TRUE );
+}
 /* ------------------------------------------------------------------------------ */
 /*                            ABRE CURSOR PRINCIPAL                               */
 /* ------------------------------------------------------------------------------ */
@@ -217,7 +231,7 @@ int bfnProcesar(){
     FILE    *fpRecaudadores=NULL;
     char    C5000_Buffer[5001];    EXEC SQL VAR C5000_Buffer IS STRING(5001);
     int flag_records=FALSE;
-    char delimiter=SEPARADOR_CABECERA;
+    char delimiter=SEPARADOR;
     
     if (SQL_OPEN_recaudadores()){
         
@@ -252,7 +266,12 @@ int bfnProcesar(){
                 strpcat(C5000_Buffer,"%-16.16s","MTO_PAGO");
                 strpcat(C5000_Buffer,"%c",delimiter);
                 strpcat(C5000_Buffer,"%-4.4s","TIP_PAGO");
-                strpcat(C5000_Buffer,"%c",delimiter);                
+                strpcat(C5000_Buffer,"%c",delimiter);
+                
+                strpcat(C5000_Buffer,"%s","\n");
+                
+            }
+            
                 
 /* Declaracion estructuras recaudadores 
 | Query field      | Date type          | variables                |
@@ -269,7 +288,35 @@ int bfnProcesar(){
 | MTO_PAGO         | NUMBER (15)        | C015_mto_pago[16]        | 
 | TIP_PAGO         | VARCHAR2 (3 Byte)  | C003_tip_pago[4]         | 
 */                
-            }
+        /* Archivo de lecturas */
+        strpcat(C5000_Buffer,"%-11.11s",C002_cod_empresa);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-11.11s",C004_cod_oficina);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-10.10s",C004_cod_cajero);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-8.8s",C002_est_pago);
+        strpcat(C5000_Buffer,"%c",delimiter); 
+        strpcat(C5000_Buffer,"%-11.11s",C010_fec_pago);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-11.11s",C010_fec_registro);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-11.11s",C010_nro_suministro);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-23.23s",C022_nro_transaccion);
+        strpcat(C5000_Buffer,"%c",delimiter); 
+        strpcat(C5000_Buffer,"%-51.51s",C050_nro_tran_reca);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-16.16s",C015_mto_pago);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        strpcat(C5000_Buffer,"%-4.4s",C003_tip_pago);
+        strpcat(C5000_Buffer,"%c",delimiter);
+        
+        strpcat(C5000_Buffer,"%s","\n");
+
+        bfnAgregarArchivoSalida(fpRecaudadores,C5000_Buffer);
+        /* Fin archivo de normalizaciones */        
+        
         }
     }
     return ( TRUE );

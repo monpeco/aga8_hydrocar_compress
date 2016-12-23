@@ -12,6 +12,7 @@ const char SEPARADOR_CABECERA = ' ';
 const char SEPARADOR_CUERPO = ';';
 /* ------------------------------------------------------------------------------ */
 /*                            DECLARACIÓN DE VARIABLES                            */
+
 /* ------------------------------------------------------------------------------ */
 char C010_par_fec_proceso[11];
 char C001_par_conexion[2];
@@ -230,8 +231,44 @@ int bfnProcesar(){
                 }
                 
                 /* Encabezado archivo */
-                strpcat(C5000_Buffer,"%-16.16s","Nro. NORM");
+                strpcat(C5000_Buffer,"%-11.11s","COD_EMPRESA");
                 strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-11.11s","COD_OFICINA");
+                strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-10.10s","COD_CAJERO");
+                strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-8.8s","EST_PAGO");
+                strpcat(C5000_Buffer,"%c",delimiter); 
+                strpcat(C5000_Buffer,"%-11.11s","FEC_PAGO");
+                strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-11.11s","FEC_REGISTRO");
+                strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-11.11s","NRO_SUMINISTRO");
+                strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-23.23s","NRO_TRANSACCION");
+                strpcat(C5000_Buffer,"%c",delimiter); 
+                strpcat(C5000_Buffer,"%-51.51s","NRO_TRAN_RECA");
+                strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-16.16s","MTO_PAGO");
+                strpcat(C5000_Buffer,"%c",delimiter);
+                strpcat(C5000_Buffer,"%-4.4s","TIP_PAGO");
+                strpcat(C5000_Buffer,"%c",delimiter);                
+                
+/* Declaracion estructuras recaudadores 
+| Query field      | Date type          | variables                |
+|------------------|--------------------|--------------------------|
+| COD_EMPRESA      | NUMBER (2)         | C002_cod_empresa[3]      | 
+| COD_OFICINA      | VARCHAR2 (4 Byte)  | C004_cod_oficina[5]      | 
+| COD_CAJERO       | VARCHAR2 (4 Byte)  | C004_cod_cajero[5]       | 
+| EST_PAGO         | VARCHAR2 (2 Byte)  | C002_est_pago[3]         | 
+| FEC_PAGO         | DATE               | C010_fec_pago[11]        | 
+| FEC_REGISTRO     | DATE               | C010_fec_registro[11]    | 
+| NRO_SUMINISTRO   | NUMBER (10)        | C010_nro_suministro[11]  | 
+| NRO_TRANSACCION  | NUMBER             | C022_nro_transaccion[23] | 
+| NRO_TRAN_RECA    | VARCHAR2 (50 Byte) | C050_nro_tran_reca[51]   | 
+| MTO_PAGO         | NUMBER (15)        | C015_mto_pago[16]        | 
+| TIP_PAGO         | VARCHAR2 (3 Byte)  | C003_tip_pago[4]         | 
+*/                
             }
         }
     }

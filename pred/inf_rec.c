@@ -143,7 +143,7 @@ SQL_OPEN_recaudadores(){
     strpcat(C4000_sql_sente,   "                       89, /* serviestado 14:00 a 13:59 */ "  );
     strpcat(C4000_sql_sente,   "                       87  /* web pay 14:00 a 13:59  */ "  );
     strpcat(C4000_sql_sente,   "                      )  "  );
-    strpcat(C4000_sql_sente,   "    and FEC_PAGO between to_date('%s'||' 14:00:00','dd/mm/yyyy hh24:mi:ss') and to_date('%s'||' 13:59:59','dd/mm/yyyy hh24:mi:ss')+1  "  , C010_par_fec_proceso, C010_par_fec_proceso);
+    strpcat(C4000_sql_sente,   "    and fec_registro between to_date('%s'||' 14:00:01','dd/mm/yyyy hh24:mi:ss') and to_date('%s'||' 14:00:00','dd/mm/yyyy hh24:mi:ss')+1  " , C010_par_fec_proceso, C010_par_fec_proceso );
     strpcat(C4000_sql_sente,   "  union  "  );
     strpcat(C4000_sql_sente,   "  select COD_EMPRESA, COD_OFICINA, COD_CAJERO, EST_PAGO, FEC_PAGO, FEC_REGISTRO, NRO_SUMINISTRO, NRO_TRANSACCION, NRO_TRAN_RECA, MTO_PAGO, TIP_PAGO,  "  );
     strpcat(C4000_sql_sente,   "         decode(cod_cajero,4015,1,4016,2,4017,3,4022,4,4013,5,4017,6,4020,7,4021,8,4019,9) orden  "  );
@@ -159,7 +159,7 @@ SQL_OPEN_recaudadores(){
     strpcat(C4000_sql_sente,   "                       4021, /* unired 14:00 a 13:59 */ "  );
     strpcat(C4000_sql_sente,   "                       4019 /* web pay 14:00 a 13:59 */ "  );
     strpcat(C4000_sql_sente,   "                      )  "  );
-    strpcat(C4000_sql_sente,   "   and FEC_PAGO between to_date('%s'||' 14:00:00','dd/mm/yyyy hh24:mi:ss') and to_date('%s'||' 13:59:59','dd/mm/yyyy hh24:mi:ss')+1  "  , C010_par_fec_proceso, C010_par_fec_proceso);
+    strpcat(C4000_sql_sente,   "    and fec_registro between to_date('%s'||' 14:00:01','dd/mm/yyyy hh24:mi:ss') and to_date('%s'||' 14:00:00','dd/mm/yyyy hh24:mi:ss')+1  " , C010_par_fec_proceso, C010_par_fec_proceso );
     strpcat(C4000_sql_sente,   "  order by COD_EMPRESA, orden  "  );
     strpcat(C4000_sql_sente,   "  )  "  );
 

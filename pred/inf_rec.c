@@ -119,6 +119,21 @@ int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
 
 	return ( TRUE );
 }
+
+int bfnCerrarArchivoSalida(FILE **fpOut){/**/
+	fclose ( *fpOut );
+
+	return ( TRUE );
+}
+
+int bfnComprimirArchivoSalida(){
+    char command[300];
+    memset(command, '\0', sizeof(command));
+
+    sprintf(command, "gzip -9 %s", C255_nom_file);
+    system(command);
+
+}
 /* ------------------------------------------------------------------------------ */
 /*                            ABRE CURSOR PRINCIPAL                               */
 /* ------------------------------------------------------------------------------ */
@@ -141,7 +156,7 @@ SQL_OPEN_recaudadores(){
     strpcat(C4000_sql_sente,   "                       88, /* presto 14:00 a 13:59 */ "  );
     strpcat(C4000_sql_sente,   "                       98, /* unired 14:00 a 13:59 */ "  );
     strpcat(C4000_sql_sente,   "                       89, /* serviestado 14:00 a 13:59 */ "  );
-    strpcat(C4000_sql_sente,   "                       87  /* web pay 14:00 a 13:59  */ "  );
+    strpcat(C4000_sql_sente,   "                       87  /* web pay 14:00 a 13:59 */  "  );
     strpcat(C4000_sql_sente,   "                      )  "  );
     strpcat(C4000_sql_sente,   "    and fec_registro between to_date('%s'||' 14:00:01','dd/mm/yyyy hh24:mi:ss') and to_date('%s'||' 14:00:00','dd/mm/yyyy hh24:mi:ss')+1  " , C010_par_fec_proceso, C010_par_fec_proceso );
     strpcat(C4000_sql_sente,   "  union  "  );
@@ -318,6 +333,12 @@ int bfnProcesar(){
         /* Fin archivo de normalizaciones */        
         
         }
+
+        if(flag_records)
+        {
+            bfnCerrarArchivoSalida(&fpRecaudadores);
+            bfnComprimirArchivoSalida();
+        }        
     }
     return ( TRUE );
 }

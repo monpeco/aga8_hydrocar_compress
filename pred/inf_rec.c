@@ -4,6 +4,7 @@
 /* PROGRAMADOR       : AM                                                         */
 /* FECHA             : Diciembre 2016                                             */
 /* ------------------------------------------------------------------------------ */
+#include <api_correo.h>			
 
 EXEC SQL INCLUDE parametros.h;
 
@@ -23,6 +24,15 @@ char C255_nom_file[256];
 /* Constantes interacción db */
 #define NODATAFOUND 1403
 #define SQLNOTFOUND ( sqlca.sqlcode == NODATAFOUND )
+
+/* Variables Email */
+char C1024_from_name[1024];
+char c1024_from_email[1024];
+char C1024_to_name[1024];
+char C1024_to_email[1024];
+char C1024_cc_email[1024];
+char C1024_subject[1024];
+char C2048_body[2048];
 
 EXEC SQL BEGIN DECLARE SECTION;
 /* Declaracion estructuras recaudadores 
@@ -61,6 +71,33 @@ EXEC SQL END DECLARE SECTION;
 /*                y la ruta que recupera de NUCSSB0044                            */
 /* ------------------------------------------------------------------------------ */
 
+
+/* Envia email segun parametros de configuracion                     */
+int ifnSendEmail(){
+    strcpy(C1024_from_name, "noreply");
+    strcpy(c1024_from_email, "no-reply@chilectra.cl");
+    strcpy(C1024_subject, "Informe Recaudadores");
+    strpcat(C2048_body, "Estimados.\nAdjunto archivo correspondiente al día 18 de Diciembre. Se generó archivo %s \n", C255_nom_file);
+    strcpy(C1024_to_name, "grupo_esval");
+    strcpy(C1024_to_email, "monpeco@gmail.com");
+
+    correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
+    correo_body(C2048_body);
+
+    if (!correo_enviar()){
+        printf(correo_error);
+        return ( FALSE );
+    }
+
+    if(DEBUG){
+    printf("------------------------------------------------------\n");
+    printf("DEBUG[ifnSendEmail]\n");
+    printf("Resultado OK\n");
+    printf("------------------------------------------------------\n\n");
+    }
+
+    return ( TRUE );
+}
 /* Crea archivo de salida en base a los prefijos y la ruta que recupera de NUCSSB0044     */
 int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){/**/
     int iRet=0;
@@ -330,7 +367,7 @@ int bfnProcesar(){
         strpcat(C5000_Buffer,"%s","\n");
 
         bfnAgregarArchivoSalida(fpRecaudadores,C5000_Buffer);
-        /* Fin archivo de normalizaciones */        
+        /* Fin archivo de Recaudadores */        
         
         }
 
@@ -338,6 +375,7 @@ int bfnProcesar(){
         {
             bfnCerrarArchivoSalida(&fpRecaudadores);
             bfnComprimirArchivoSalida();
+            ifnSendEmail();
         }        
     }
     return ( TRUE );

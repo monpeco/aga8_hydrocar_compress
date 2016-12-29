@@ -79,11 +79,14 @@ int ifnSendEmail(){
     strcpy(C1024_subject, "Informe Recaudadores");
     strpcat(C2048_body, "Estimados.\nAdjunto archivo correspondiente al día 18 de Diciembre. Se generó archivo %s \n", C255_nom_file);
     strcpy(C1024_to_name, "grupo_esval");
-    strcpy(C1024_to_email, "monpeco@gmail.com");
+    //strcpy(C1024_to_email, "monpeco@gmail.com");
+    strcpy(C1024_to_email, "AM@tivit-synapsis.com");
 
     correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
     correo_body(C2048_body);
-
+    strcat(C255_nom_file, ".gz");
+    correo_attach(C255_nom_file, "/tmp/");
+    
     if (!correo_enviar()){
         printf(correo_error);
         return ( FALSE );
@@ -389,7 +392,10 @@ main(int argc,char **argv)
         printf("Use : %s <conexion> <fecha_proceso>\n",argv[0]);
         exit(1);
     }
-    
+    //quitar  b   ifnSendEmail
+    //quitar  r   1  14/07/2009
+    //quitar rm Informe_Recaudadores_29122016.csv.gz
+    //quitar rm Informe_Recaudadores_29122016.csv
     strcpy(C001_par_conexion, argv[1]);
     strcpy(C010_par_fec_proceso, argv[2]);
     

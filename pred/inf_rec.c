@@ -80,12 +80,13 @@ int ifnSendEmail(){
     strpcat(C2048_body, "Estimados.\nAdjunto archivo correspondiente al día 18 de Diciembre. Se generó archivo %s \n", C255_nom_file);
     strcpy(C1024_to_name, "grupo_esval");
     //strcpy(C1024_to_email, "monpeco@gmail.com");
-    strcpy(C1024_to_email, "AM@tivit-synapsis.com");
+    strcpy(C1024_to_email, "AM@tivit-synapsis.com, monpeco@gmail.com");
+    //strcpy(C1024_cc_email, "monpeco@gmail.com");
 
     correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
     correo_body(C2048_body);
     strcat(C255_nom_file, ".gz");
-    correo_attach(C255_nom_file, "/tmp/");
+    correo_attach(C255_nom_file, "");
     
     if (!correo_enviar()){
         printf(correo_error);

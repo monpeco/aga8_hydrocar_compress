@@ -71,13 +71,11 @@ char C003_ano[5]              ;    EXEC SQL VAR C003_ano IS STRING(5)           
 EXEC SQL END DECLARE SECTION;
 
 
-/* ------------------------------------------------------------------------------ */
-/*                Crea archivo de salida en base a los prefijos                   */
-/*                y la ruta que recupera de NUCSSB0044                            */
-/* ------------------------------------------------------------------------------ */
 
 
-/* Envia email segun parametros de configuracion                     */
+/* ------------------------------------------------------------------------------ */
+/*                            Envia email segun parametros de configuracion       */
+/* ------------------------------------------------------------------------------ */
 int ifnSendEmail(){
     int iRet=0;
 
@@ -95,10 +93,10 @@ int ifnSendEmail(){
         return ( FALSE );
     
     strcpy(C1024_from_name, "noreply");
-    strcpy(c1024_from_email, "no-reply@esval.cl");
+    strcpy(c1024_from_email, "ramm@tivit-synapsis.com");
     strcpy(C1024_subject, "Informe Recaudadores");
     strpcat(C2048_body, "Estimados,\n\nAdjunto archivo correspondiente al día %s, %s de %s de %s.\n\nAtte.\nRodrigo Mugoreni", C003_dia_semana, C003_dia_mes, C003_mes, C003_ano);
-    strcpy(C1024_to_name, "grupo_esval");
+    //strcpy(C1024_to_name, "grupo_esval");
     strcpy(C1024_to_email, "AM@tivit-synapsis.com, monpeco@gmail.com");
     //strcpy(C1024_cc_email, "monpeco@gmail.com");
 
@@ -121,8 +119,10 @@ int ifnSendEmail(){
 
     return ( TRUE );
 }
-/* Crea archivo de salida en base a los prefijos y la ruta que recupera de NUCSSB0044     */
-int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){/**/
+/* ------------------------------------------------------------------------------ */
+/*                            Crea archivo de salida en base a los prefijos       */
+/* ------------------------------------------------------------------------------ */
+int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){
     int iRet=0;
     char C256_pat_unix[256]; EXEC SQL VAR C256_pat_unix IS STRING(256);
     char C020_fecha[20]; EXEC SQL VAR C020_fecha IS STRING(20);
@@ -162,7 +162,9 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
 
 	return ( TRUE );
 }
-
+/* ------------------------------------------------------------------------------ */
+/*                            Agrega data al archivo de salida                    */
+/* ------------------------------------------------------------------------------ */
 int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
 	int iRet = TRUE;
 
@@ -179,13 +181,17 @@ int bfnAgregarArchivoSalida(FILE *fpOut, char *cBuffer){/**/
 
 	return ( TRUE );
 }
-
+/* ------------------------------------------------------------------------------ */
+/*                            Cierra archivo de salida                            */
+/* ------------------------------------------------------------------------------ */
 int bfnCerrarArchivoSalida(FILE **fpOut){/**/
 	fclose ( *fpOut );
 
 	return ( TRUE );
 }
-
+/* ------------------------------------------------------------------------------ */
+/*                            Comprimir archivo de salida                         */
+/* ------------------------------------------------------------------------------ */
 int bfnComprimirArchivoSalida(){
     char command[300];
     memset(command, '\0', sizeof(command));
@@ -346,23 +352,7 @@ int bfnProcesar(){
                 strpcat(C5000_Buffer,"%s","\n");
                 
             }
-            
-                
-/* Declaracion estructuras recaudadores 
-| Query field      | Date type          | variables                |
-|------------------|--------------------|--------------------------|
-| COD_EMPRESA      | NUMBER (2)         | C002_cod_empresa[3]      | 
-| COD_OFICINA      | VARCHAR2 (4 Byte)  | C004_cod_oficina[5]      | 
-| COD_CAJERO       | VARCHAR2 (4 Byte)  | C004_cod_cajero[5]       | 
-| EST_PAGO         | VARCHAR2 (2 Byte)  | C002_est_pago[3]         | 
-| FEC_PAGO         | DATE               | C010_fec_pago[11]        | 
-| FEC_REGISTRO     | DATE               | C010_fec_registro[11]    | 
-| NRO_SUMINISTRO   | NUMBER (10)        | C010_nro_suministro[11]  | 
-| NRO_TRANSACCION  | NUMBER             | C022_nro_transaccion[23] | 
-| NRO_TRAN_RECA    | VARCHAR2 (50 Byte) | C050_nro_tran_reca[51]   | 
-| MTO_PAGO         | NUMBER (15)        | C015_mto_pago[16]        | 
-| TIP_PAGO         | VARCHAR2 (3 Byte)  | C003_tip_pago[4]         | 
-*/                
+              
         /* Archivo de lecturas */
         strpcat(C5000_Buffer,"%-11.11s",C002_cod_empresa);
         strpcat(C5000_Buffer,"%c",delimiter);
@@ -412,10 +402,7 @@ main(int argc,char **argv)
         printf("Use : %s <conexion> <fecha_proceso>\n",argv[0]);
         exit(1);
     }
-    //quitar  b   ifnSendEmail
-    //quitar  r   1  14/07/2009
-    //quitar rm Informe_Recaudadores_29122016.csv.gz
-    //quitar rm Informe_Recaudadores_29122016.csv
+
     strcpy(C001_par_conexion, argv[1]);
     strcpy(C010_par_fec_proceso, argv[2]);
     

@@ -83,23 +83,22 @@ int ifnSendEmail(){
 
     /* Obtiene fecha del sistema */
     EXEC SQL
-        SELECT TRIM(TO_CHAR(SYSDATE,'DAY'))
+        SELECT TRIM(TO_CHAR(SYSDATE,'Day'))
             , TRIM(TO_CHAR(SYSDATE,'DD'))
-            , TRIM(TO_CHAR(SYSDATE,'MONTH'))
+            , TRIM(TO_CHAR(SYSDATE,'Month'))
             , TRIM(TO_CHAR(SYSDATE,'YYYY'))
         INTO    :C003_dia_semana, :C003_dia_mes, :C003_mes, C003_ano
         FROM DUAL;
 
-    iRet = do_error("Select SYSDATE");
+    iRet = do_error("Select SYSDATE - DAY DD MONTH YYYY");
     if ( iRet == TRUE )
         return ( FALSE );
     
     strcpy(C1024_from_name, "noreply");
-    strcpy(c1024_from_email, "no-reply@chilectra.cl");
+    strcpy(c1024_from_email, "no-reply@esval.cl");
     strcpy(C1024_subject, "Informe Recaudadores");
-    strpcat(C2048_body, "Estimados.\nAdjunto archivo correspondiente al día 18 de Diciembre. Se generó archivo %s \n", C255_nom_file);
+    strpcat(C2048_body, "Estimados,\n\nAdjunto archivo correspondiente al día %s, %s de %s de %s.\n\nAtte.\nRodrigo Mugoreni", C003_dia_semana, C003_dia_mes, C003_mes, C003_ano);
     strcpy(C1024_to_name, "grupo_esval");
-    //strcpy(C1024_to_email, "monpeco@gmail.com");
     strcpy(C1024_to_email, "AM@tivit-synapsis.com, monpeco@gmail.com");
     //strcpy(C1024_cc_email, "monpeco@gmail.com");
 
@@ -341,7 +340,7 @@ int bfnProcesar(){
                 strpcat(C5000_Buffer,"%c",delimiter);
                 strpcat(C5000_Buffer,"%-16.16s","MTO_PAGO");
                 strpcat(C5000_Buffer,"%c",delimiter);
-                strpcat(C5000_Buffer,"%-4.4s","TIP_PAGO");
+                strpcat(C5000_Buffer,"%-8.8s","TIP_PAGO");
                 strpcat(C5000_Buffer,"%c",delimiter);
                 
                 strpcat(C5000_Buffer,"%s","\n");

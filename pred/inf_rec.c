@@ -63,6 +63,11 @@ char C050_nro_tran_reca[51]   ;    EXEC SQL VAR C050_nro_tran_reca IS STRING(51)
 char C015_mto_pago[16]        ;    EXEC SQL VAR C015_mto_pago IS STRING(16)        ;
 char C003_tip_pago[4]         ;    EXEC SQL VAR C003_tip_pago IS STRING(4)         ;
 
+char C003_dia_semana[15]      ;    EXEC SQL VAR C003_dia_semana IS STRING(15)      ;
+char C003_dia_mes[3]          ;    EXEC SQL VAR C003_dia_mes IS STRING(3)          ;
+char C003_mes[15]             ;    EXEC SQL VAR C003_mes IS STRING(15)             ;
+char C003_ano[5]              ;    EXEC SQL VAR C003_ano IS STRING(5)              ;
+
 EXEC SQL END DECLARE SECTION;
 
 
@@ -74,6 +79,21 @@ EXEC SQL END DECLARE SECTION;
 
 /* Envia email segun parametros de configuracion                     */
 int ifnSendEmail(){
+    int iRet=0;
+
+    /* Obtiene fecha del sistema */
+    EXEC SQL
+        SELECT TRIM(TO_CHAR(SYSDATE,'DAY'))
+            , TRIM(TO_CHAR(SYSDATE,'DD'))
+            , TRIM(TO_CHAR(SYSDATE,'MONTH'))
+            , TRIM(TO_CHAR(SYSDATE,'YYYY'))
+        INTO    :C003_dia_semana, :C003_dia_mes, :C003_mes, C003_ano
+        FROM DUAL;
+
+    iRet = do_error("Select SYSDATE");
+    if ( iRet == TRUE )
+        return ( FALSE );
+    
     strcpy(C1024_from_name, "noreply");
     strcpy(c1024_from_email, "no-reply@chilectra.cl");
     strcpy(C1024_subject, "Informe Recaudadores");

@@ -14,6 +14,7 @@ const char SEPARADOR = ';';
 /*                            DECLARACIÓN DE VARIABLES                            */
 /* ------------------------------------------------------------------------------ */
 char C010_par_fec_proceso[11];
+char C010_par_fec_proceso_numeros[11];
 char C001_par_conexion[2];
 //char	C255_nom_file[256]		;	 		EXEC SQL VAR C255_nom_file		IS STRING(256)	;
 char C255_nom_file[256];
@@ -76,6 +77,22 @@ EXEC SQL END DECLARE SECTION;
 /* ------------------------------------------------------------------------------ */
 /*                            Envia email segun parametros de configuracion       */
 /* ------------------------------------------------------------------------------ */
+int bfnFormatDate(){
+    memset(C010_par_fec_proceso_numeros, '\0', sizeof(C010_par_fec_proceso_numeros));
+    C010_par_fec_proceso_numeros[0] = C010_par_fec_proceso[0];
+    C010_par_fec_proceso_numeros[1] = C010_par_fec_proceso[1];
+    C010_par_fec_proceso_numeros[2] = C010_par_fec_proceso[3];
+    C010_par_fec_proceso_numeros[3] = C010_par_fec_proceso[4];
+    C010_par_fec_proceso_numeros[4] = C010_par_fec_proceso[6];
+    C010_par_fec_proceso_numeros[5] = C010_par_fec_proceso[7];
+    C010_par_fec_proceso_numeros[6] = C010_par_fec_proceso[8];
+    C010_par_fec_proceso_numeros[7] = C010_par_fec_proceso[9];
+    C010_par_fec_proceso_numeros[8] = '\0';
+}
+    
+/* ------------------------------------------------------------------------------ */
+/*                            Envia email segun parametros de configuracion       */
+/* ------------------------------------------------------------------------------ */
 int ifnSendEmail(){
     int iRet=0;
 
@@ -135,16 +152,16 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
     strcpy(C256_pat_unix, PATH);
 
 	/* Obtiene fecha del sistema */
-    EXEC SQL
-         SELECT  TO_CHAR( sysdate, 'ddmmyyyy' )
-         INTO    :C020_fecha
-         FROM    DUAL;
-    iRet = do_error("Select SYSDATE");
-    if ( iRet == TRUE )
-        return ( FALSE );
+    // EXEC SQL
+         // SELECT  TO_CHAR( sysdate, 'ddmmyyyy' )
+         // INTO    :C020_fecha
+         // FROM    DUAL;
+    // iRet = do_error("Select SYSDATE");
+    // if ( iRet == TRUE )
+        // return ( FALSE );
 
 	/* Crea archivo de salida */
-	sprintf(C255_nom_file, "%s%s_%s_%s.%s", C256_pat_unix,prefix1,prefix2,C020_fecha,ext);
+	sprintf(C255_nom_file, "%s%s_%s_%s.%s", C256_pat_unix,prefix1,prefix2,C010_par_fec_proceso_numeros,ext);
 	if( ( *fpOut = fopen( C255_nom_file, "w+" ) ) == NULL )
 	{
 		printf("ERR|Error al Generar Archivo <%s>. Error %s\n", 
@@ -405,8 +422,7 @@ main(int argc,char **argv)
 
     strcpy(C001_par_conexion, argv[1]);
     strcpy(C010_par_fec_proceso, argv[2]);
-    
-    sql_conexion(C001_par_conexion);
+    bfnFormatDate();
 
     if(!bfnProcesar()){
         printf("Error\n");

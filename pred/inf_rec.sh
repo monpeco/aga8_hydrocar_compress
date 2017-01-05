@@ -11,6 +11,38 @@ export TWO_TASK=prodesval
 echo [INICIO]
 date
 
-fecha_proceso=$1
-echo "Fecha: ${fecha_proceso}"
+FECHAESPECIAL=`date '+%d/%m/%Y'`
+
+#Valido si es domingo o feriado
+resultado=`sqlplus -s 'clientes4j/producto@DESAESVAL' << EOF
+set serveroutput on
+set feedback off
+set head off
+select nvl(max(xxx),0)
+from (select 1 xxx
+      from nucssb0054
+      where cod_empresa in (1,2)
+        and est_registro = 'A'
+        and cod_sistema = 'AIC'
+        and fecha  = trunc(sysdate)
+      union
+      select 1
+      from dual
+      where to_char(trunc(sysdate), 'DY', 'NLS_DATE_LANGUAGE=SPANISH') = 'DOM');
+exit;
+EOF`
+
+
+echo "resultado: ${resultado}"
+
+if [ $resultado == '1' ]; then
+
+    echo "NO EJECUTA, DIA FERIADO"
+
+else
+    echo "EJECUTANDO, DIA NORMAL"
+fi
+
+echo [FIN]
+#date
 

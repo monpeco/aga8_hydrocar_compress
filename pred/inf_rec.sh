@@ -25,11 +25,11 @@ from (select 1 xxx
       where cod_empresa in (1,2)
         and est_registro = 'A'
         and cod_sistema = 'AIC'
-        and fecha  = trunc(sysdate)
+        and fecha  = trunc(to_date('${fecha_proceso}', 'dd/mm/yyyy'))
       union
       select 1
       from dual
-      where to_char(trunc(sysdate), 'DY', 'NLS_DATE_LANGUAGE=SPANISH') = 'DOM');
+      where to_char(trunc(to_date('${fecha_proceso}', 'dd/mm/yyyy')), 'DY', 'NLS_DATE_LANGUAGE=SPANISH') = 'DOM');
 exit;
 EOF`
 

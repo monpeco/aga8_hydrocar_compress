@@ -8,6 +8,15 @@ export NLS_LANG=SPANISH_SPAIN.WE8MSWIN1252
 export ORACLE_SID=prodesval
 export TWO_TASK=prodesval
 
+
+# Recuperar la fecha de la ultima ejecucion del proceso
+ultimo_proceso () {
+    echo "fecha_ultimo_proceso()"
+    fecha_ultimo_proceso=`cat fecha_inf_rec.txt`
+    echo "fecha_ultimo_proceso: ${fecha_ultimo_proceso}"
+
+}
+
 echo [INICIO]
 date
 
@@ -38,7 +47,8 @@ echo "es_feriado: ${es_feriado}"
 
 if [ $es_feriado == '0' ]; then
     echo "EJECUTANDO, DIA NORMAL"
-
+    ultimo_proceso
+    
 else
     echo "NO EJECUTA, DIA FERIADO"
 

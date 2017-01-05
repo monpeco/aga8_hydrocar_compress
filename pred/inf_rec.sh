@@ -11,10 +11,11 @@ export TWO_TASK=prodesval
 echo [INICIO]
 date
 
-FECHAESPECIAL=`date '+%d/%m/%Y'`
+fecha_proceso=$1
+echo "fecha_proceso: ${fecha_proceso}"
 
 #Valido si es domingo o feriado
-resultado=`sqlplus -s 'clientes4j/producto@DESAESVAL' << EOF
+es_feriado=`sqlplus -s 'clientes4j/producto@DESAESVAL' << EOF
 set serveroutput on
 set feedback off
 set head off
@@ -33,14 +34,14 @@ exit;
 EOF`
 
 
-echo "resultado: ${resultado}"
+echo "es_feriado: ${es_feriado}"
 
-if [ $resultado == '1' ]; then
-
-    echo "NO EJECUTA, DIA FERIADO"
+if [ $es_feriado == '0' ]; then
+    echo "EJECUTANDO, DIA NORMAL"
 
 else
-    echo "EJECUTANDO, DIA NORMAL"
+    echo "NO EJECUTA, DIA FERIADO"
+
 fi
 
 echo [FIN]

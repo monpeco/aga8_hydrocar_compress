@@ -126,23 +126,12 @@ int ifnSendEmail(){
 int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){
     int iRet=0;
     char C256_pat_unix[256]; EXEC SQL VAR C256_pat_unix IS STRING(256);
-    char C020_fecha[20]; EXEC SQL VAR C020_fecha IS STRING(20);
 
     memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
-    memset(C020_fecha, '\0', sizeof(C020_fecha));
     memset(C255_nom_file, '\0', sizeof(C255_nom_file));
 
     /* Obtiene path unix */
     strcpy(C256_pat_unix, PATH);
-
-	/* Obtiene fecha del sistema */
-    EXEC SQL
-         SELECT  TO_CHAR( sysdate, 'ddmmyyyy' )
-         INTO    :C020_fecha
-         FROM    DUAL;
-    iRet = do_error("Select SYSDATE");
-    if ( iRet == TRUE )
-        return ( FALSE );
 
     C010_par_fec_proceso_numeros[2] = C010_par_fec_proceso_numeros[3];
     C010_par_fec_proceso_numeros[3] = C010_par_fec_proceso_numeros[4];

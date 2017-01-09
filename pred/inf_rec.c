@@ -56,8 +56,8 @@ char C002_cod_empresa[3]      ;    EXEC SQL VAR C002_cod_empresa IS STRING(3)   
 char C004_cod_oficina[5]      ;    EXEC SQL VAR C004_cod_oficina IS STRING(5)      ;
 char C004_cod_cajero[5]       ;    EXEC SQL VAR C004_cod_cajero IS STRING(5)       ;
 char C002_est_pago[3]         ;    EXEC SQL VAR C002_est_pago IS STRING(3)         ;
-char C010_fec_pago[11]        ;    EXEC SQL VAR C010_fec_pago IS STRING(11)        ;
-char C010_fec_registro[11]    ;    EXEC SQL VAR C010_fec_registro IS STRING(11)    ;
+char C010_fec_pago[20]        ;    EXEC SQL VAR C010_fec_pago IS STRING(20)        ;
+char C010_fec_registro[20]    ;    EXEC SQL VAR C010_fec_registro IS STRING(20)    ;
 char C010_nro_suministro[11]  ;    EXEC SQL VAR C010_nro_suministro IS STRING(11)  ;
 char C022_nro_transaccion[23] ;    EXEC SQL VAR C022_nro_transaccion IS STRING(23) ;
 char C050_nro_tran_reca[51]   ;    EXEC SQL VAR C050_nro_tran_reca IS STRING(51)   ;
@@ -206,7 +206,7 @@ SQL_OPEN_recaudadores(){
     memset(C4000_sql_sente, '\0', sizeof(C4000_sql_sente));
     
     strcpy(C4000_sql_sente, "  ");
-    strpcat(C4000_sql_sente,   "  select COD_EMPRESA, COD_OFICINA, COD_CAJERO, EST_PAGO, FEC_PAGO, FEC_REGISTRO, NRO_SUMINISTRO, NRO_TRANSACCION, NRO_TRAN_RECA, MTO_PAGO, TIP_PAGO  "  );
+    strpcat(C4000_sql_sente,   "  select COD_EMPRESA, COD_OFICINA, COD_CAJERO, EST_PAGO, TO_CHAR(FEC_PAGO, 'dd/mm/yyyy hh24:mi:ss'), TO_CHAR(FEC_REGISTRO, 'dd/mm/yyyy hh24:mi:ss'), NRO_SUMINISTRO, NRO_TRANSACCION, NRO_TRAN_RECA, MTO_PAGO, TIP_PAGO  "  );
     strpcat(C4000_sql_sente,   "  from (  "  );
     strpcat(C4000_sql_sente,   "  select COD_EMPRESA, COD_OFICINA, COD_CAJERO, EST_PAGO, FEC_PAGO, FEC_REGISTRO, NRO_SUMINISTRO, NRO_TRANSACCION, NRO_TRAN_RECA, MTO_PAGO, TIP_PAGO,  "  );
     strpcat(C4000_sql_sente,   "         decode(cod_cajero,0097,1,0098,2,0089,3,0099,4,0095,5,0096,6,0088,7,0098,8,0087,9) orden  "  );
@@ -332,9 +332,9 @@ int bfnProcesar(){
                 strpcat(C5000_Buffer,"%c",delimiter);
                 strpcat(C5000_Buffer,"%-8.8s","EST_PAGO");
                 strpcat(C5000_Buffer,"%c",delimiter); 
-                strpcat(C5000_Buffer,"%-11.11s","FEC_PAGO");
+                strpcat(C5000_Buffer,"%-20.20s","FEC_PAGO");
                 strpcat(C5000_Buffer,"%c",delimiter);
-                strpcat(C5000_Buffer,"%-11.11s","FEC_REGISTRO");
+                strpcat(C5000_Buffer,"%-20.20s","FEC_REGISTRO");
                 strpcat(C5000_Buffer,"%c",delimiter);
                 strpcat(C5000_Buffer,"%-11.11s","NRO_SUMINISTRO");
                 strpcat(C5000_Buffer,"%c",delimiter);
@@ -360,9 +360,9 @@ int bfnProcesar(){
         strpcat(C5000_Buffer,"%c",delimiter);
         strpcat(C5000_Buffer,"%-8.8s",C002_est_pago);
         strpcat(C5000_Buffer,"%c",delimiter); 
-        strpcat(C5000_Buffer,"%-11.11s",C010_fec_pago);
+        strpcat(C5000_Buffer,"%-20.20s",C010_fec_pago);
         strpcat(C5000_Buffer,"%c",delimiter);
-        strpcat(C5000_Buffer,"%-11.11s",C010_fec_registro);
+        strpcat(C5000_Buffer,"%-20.20s",C010_fec_registro);
         strpcat(C5000_Buffer,"%c",delimiter);
         strpcat(C5000_Buffer,"%-11.11s",C010_nro_suministro);
         strpcat(C5000_Buffer,"%c",delimiter);

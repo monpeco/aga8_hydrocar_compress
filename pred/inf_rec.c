@@ -75,52 +75,6 @@ EXEC SQL END DECLARE SECTION;
 
 
 /* ------------------------------------------------------------------------------ */
-/*                            Envia email segun parametros de configuracion       */
-/* ------------------------------------------------------------------------------ */
-int ifnSendEmail(){
-    int iRet=0;
-
-    /* Obtiene fecha del sistema */
-    EXEC SQL
-        SELECT TRIM(TO_CHAR(SYSDATE,'Day'))
-            , TRIM(TO_CHAR(SYSDATE,'DD'))
-            , TRIM(TO_CHAR(SYSDATE,'Month'))
-            , TRIM(TO_CHAR(SYSDATE,'YYYY'))
-        INTO    :C003_dia_semana, :C003_dia_mes, :C003_mes, C003_ano
-        FROM DUAL;
-
-    iRet = do_error("Select SYSDATE - DAY DD MONTH YYYY");
-    if ( iRet == TRUE )
-        return ( FALSE );
-    
-    strcpy(C1024_from_name, "noreply");
-    strcpy(c1024_from_email, "ramm@tivit-synapsis.com");
-    strcpy(C1024_subject, "Informe Recaudadores");
-    strpcat(C2048_body, "Estimados,\n\nAdjunto archivo correspondiente al día %s, %s de %s de %s.\n\nAtte.\nRodrigo Mugoreni", C003_dia_semana, C003_dia_mes, C003_mes, C003_ano);
-    //strcpy(C1024_to_name, "grupo_esval");
-    strcpy(C1024_to_email, "AM@tivit-synapsis.com, monpeco@gmail.com");
-    //strcpy(C1024_cc_email, "monpeco@gmail.com");
-
-    correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
-    correo_body(C2048_body);
-    strcat(C255_nom_file, ".gz");
-    correo_attach(C255_nom_file, "");
-    
-    if (!correo_enviar()){
-        printf(correo_error);
-        return ( FALSE );
-    }
-
-    if(DEBUG){
-    printf("------------------------------------------------------\n");
-    printf("DEBUG[ifnSendEmail]\n");
-    printf("Resultado OK\n");
-    printf("------------------------------------------------------\n\n");
-    }
-
-    return ( TRUE );
-}
-/* ------------------------------------------------------------------------------ */
 /*                            Crea archivo de salida en base a los prefijos       */
 /* ------------------------------------------------------------------------------ */
 int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext){
@@ -386,7 +340,6 @@ int bfnProcesar(){
         {
             bfnCerrarArchivoSalida(&fpRecaudadores);
             bfnComprimirArchivoSalida();
-            ifnSendEmail();
         }        
     }
     return ( TRUE );

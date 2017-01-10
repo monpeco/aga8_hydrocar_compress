@@ -13,8 +13,6 @@ const char SEPARADOR = ';';
 /* ------------------------------------------------------------------------------ */
 /*                            DECLARACIÓN DE VARIABLES                            */
 /* ------------------------------------------------------------------------------ */
-char C010_par_fec_proceso[11];
-char C010_par_fec_proceso_numeros[11];
 char C001_par_conexion[2];
 //char	C255_nom_file[256]		;	 		EXEC SQL VAR C255_nom_file		IS STRING(256)	;
 char C255_nom_file[256];
@@ -69,11 +67,20 @@ char C003_dia_mes[3]          ;    EXEC SQL VAR C003_dia_mes IS STRING(3)       
 char C003_mes[15]             ;    EXEC SQL VAR C003_mes IS STRING(15)             ;
 char C003_ano[5]              ;    EXEC SQL VAR C003_ano IS STRING(5)              ;
 
+char	C010_par_fec_proceso_numeros[9];	EXEC SQL VAR C010_par_fec_proceso_numeros IS STRING(9);
+char	C010_par_fec_proceso[11];			EXEC SQL VAR C010_par_fec_proceso IS STRING(11);
+
 EXEC SQL END DECLARE SECTION;
 
 
 
+void sql_fecha_hoy(){
+	EXEC SQL
+		SELECT TO_CHAR(SYSDATE,'DDMMYYYY'),TO_CHAR(SYSDATE,'DD/MM/YYYY') INTO :C010_par_fec_proceso_numeros,:C010_par_fec_proceso
+		FROM DUAL;
+    do_error("sql_fecha_hoy()");
 
+}
 /* ------------------------------------------------------------------------------ */
 /*                            Crea archivo de salida en base a los prefijos       */
 /* ------------------------------------------------------------------------------ */
@@ -87,13 +94,13 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
     /* Obtiene path unix */
     strcpy(C256_pat_unix, PATH);
 
-    C010_par_fec_proceso_numeros[2] = C010_par_fec_proceso_numeros[3];
-    C010_par_fec_proceso_numeros[3] = C010_par_fec_proceso_numeros[4];
-    C010_par_fec_proceso_numeros[4] = C010_par_fec_proceso_numeros[6];
-    C010_par_fec_proceso_numeros[5] = C010_par_fec_proceso_numeros[7];
-    C010_par_fec_proceso_numeros[6] = C010_par_fec_proceso_numeros[8];
-    C010_par_fec_proceso_numeros[7] = C010_par_fec_proceso_numeros[9];
-    C010_par_fec_proceso_numeros[8] = '\0';
+    // C010_par_fec_proceso_numeros[2] = C010_par_fec_proceso_numeros[3];
+    // C010_par_fec_proceso_numeros[3] = C010_par_fec_proceso_numeros[4];
+    // C010_par_fec_proceso_numeros[4] = C010_par_fec_proceso_numeros[6];
+    // C010_par_fec_proceso_numeros[5] = C010_par_fec_proceso_numeros[7];
+    // C010_par_fec_proceso_numeros[6] = C010_par_fec_proceso_numeros[8];
+    // C010_par_fec_proceso_numeros[7] = C010_par_fec_proceso_numeros[9];
+    // C010_par_fec_proceso_numeros[8] = '\0';
     
 	/* Crea archivo de salida */
 	sprintf(C255_nom_file, "%s%s_%s_%s.%s", C256_pat_unix,prefix1,prefix2,C010_par_fec_proceso_numeros,ext);
@@ -349,16 +356,18 @@ int bfnProcesar(){
 /* ------------------------------------------------------------------------------ */
 main(int argc,char **argv)
 {
-   if( argc != 3){
-        printf("Use : %s <conexion> <fecha_proceso>\n",argv[0]);
+   if( argc != 2){
+        printf("Use : %s <conexion>\n",argv[0]);
         exit(1);
     }
 
     strcpy(C001_par_conexion, argv[1]);
-    strcpy(C010_par_fec_proceso, argv[2]);
-    strcpy(C010_par_fec_proceso_numeros, C010_par_fec_proceso);
-    
+    //strcpy(C010_par_fec_proceso, argv[2]);
+    //strcpy(C010_par_fec_proceso_numeros, C010_par_fec_proceso);
+
     sql_conexion(C001_par_conexion);
+    sql_fecha_hoy();
+
 
     if(!bfnProcesar()){
         printf("Error\n");

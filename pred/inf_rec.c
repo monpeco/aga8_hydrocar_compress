@@ -14,7 +14,6 @@ const char SEPARADOR = ';';
 /*                            DECLARACIÓN DE VARIABLES                            */
 /* ------------------------------------------------------------------------------ */
 char C001_par_conexion[2];
-//char	C255_nom_file[256]		;	 		EXEC SQL VAR C255_nom_file		IS STRING(256)	;
 char C255_nom_file[256];
 
 /* Variables Generales */
@@ -93,14 +92,6 @@ int bfnCrearArchivoSalida(FILE **fpOut, char *prefix1, char *prefix2, char *ext)
 
     /* Obtiene path unix */
     strcpy(C256_pat_unix, PATH);
-
-    // C010_par_fec_proceso_numeros[2] = C010_par_fec_proceso_numeros[3];
-    // C010_par_fec_proceso_numeros[3] = C010_par_fec_proceso_numeros[4];
-    // C010_par_fec_proceso_numeros[4] = C010_par_fec_proceso_numeros[6];
-    // C010_par_fec_proceso_numeros[5] = C010_par_fec_proceso_numeros[7];
-    // C010_par_fec_proceso_numeros[6] = C010_par_fec_proceso_numeros[8];
-    // C010_par_fec_proceso_numeros[7] = C010_par_fec_proceso_numeros[9];
-    // C010_par_fec_proceso_numeros[8] = '\0';
     
 	/* Crea archivo de salida */
 	sprintf(C255_nom_file, "%s%s_%s_%s.%s", C256_pat_unix,prefix1,prefix2,C010_par_fec_proceso_numeros,ext);
@@ -362,8 +353,6 @@ main(int argc,char **argv)
     }
 
     strcpy(C001_par_conexion, argv[1]);
-    //strcpy(C010_par_fec_proceso, argv[2]);
-    //strcpy(C010_par_fec_proceso_numeros, C010_par_fec_proceso);
 
     sql_conexion(C001_par_conexion);
     sql_fecha_hoy();

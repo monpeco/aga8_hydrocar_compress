@@ -367,7 +367,10 @@ main(int argc,char **argv)
 
     sql_conexion(C001_par_conexion);
     sql_fecha_hoy();
-
+    //AM quitar
+    strcpy(C010_par_fec_proceso, "14/07/2009");
+    strcpy(C010_par_fec_proceso_numeros, "14072009");
+    //AM quitar
 
     if(!bfnProcesar()){
         printf("Error\n");

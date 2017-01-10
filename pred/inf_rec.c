@@ -4,8 +4,6 @@
 /* PROGRAMADOR       : AM                                                         */
 /* FECHA             : Diciembre 2016                                             */
 /* ------------------------------------------------------------------------------ */
-#include <api_correo.h>			
-
 EXEC SQL INCLUDE parametros.h;
 
 const char *PATH = "/tmp/";
@@ -75,7 +73,7 @@ EXEC SQL END DECLARE SECTION;
 
 void sql_fecha_hoy(){
 	EXEC SQL
-		SELECT TO_CHAR(SYSDATE,'DDMMYYYY'),TO_CHAR(SYSDATE,'DD/MM/YYYY') INTO :C010_par_fec_proceso_numeros,:C010_par_fec_proceso
+		SELECT TO_CHAR(SYSDATE-1,'DDMMYYYY'),TO_CHAR(SYSDATE-1,'DD/MM/YYYY') INTO :C010_par_fec_proceso_numeros,:C010_par_fec_proceso
 		FROM DUAL;
     do_error("sql_fecha_hoy()");
 

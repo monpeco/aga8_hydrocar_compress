@@ -40,6 +40,21 @@ char	C002_laborable[2];	EXEC SQL VAR C002_laborable IS STRING(2);
 EXEC SQL END DECLARE SECTION;
 
 
+void crear_lista(){
+    char C256_pat_unix[256]; //EXEC SQL VAR C256_pat_unix IS STRING(256);
+    
+
+    memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
+
+    /* Obtiene path unix */
+    strcpy(C256_pat_unix, "ls ");
+    strcat(C256_pat_unix, PATH);
+    strcat(C256_pat_unix, "*.csv.gz > ");
+    strcat(C256_pat_unix, PATH);
+    strcat(C256_pat_unix, "lista_inf.txt");
+    
+    system(C256_pat_unix);
+}
 
 void no_laborable(){
     
@@ -86,20 +101,9 @@ void no_laborable(){
 /* ------------------------------------------------------------------------------ */
 
 int bfnProcesar(){
-    char C256_pat_unix[256]; //EXEC SQL VAR C256_pat_unix IS STRING(256);
-    
     printf("bfnProcesar\n");
 
-    memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
-
-    /* Obtiene path unix */
-    strcpy(C256_pat_unix, "ls ");
-    strcat(C256_pat_unix, PATH);
-    strcat(C256_pat_unix, "*.csv.gz > ");
-    strcat(C256_pat_unix, PATH);
-    strcat(C256_pat_unix, "lista_inf.txt");
-    
-    system(C256_pat_unix);
+    crear_lista();
 
     return ( TRUE );
 }

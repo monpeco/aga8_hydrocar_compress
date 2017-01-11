@@ -45,7 +45,7 @@ void no_laborable(){
     
     memset(C002_laborable, '\0', sizeof(C002_laborable));
     
-    
+    /*
     EXEC SQL
         select nvl(max(xxx),0)
         INTO :C002_laborable
@@ -60,9 +60,9 @@ void no_laborable(){
         from dual
             where to_char(sysdate-1, 'DY', 'NLS_DATE_LANGUAGE=SPANISH') IN ('DOM', 'SÁB'));
     do_error("no_laborable()");
+    */
     
     
-    /*
     EXEC SQL
         select nvl(max(xxx),0)
         INTO :C002_laborable
@@ -77,7 +77,7 @@ void no_laborable(){
             from dual
                 where to_char(trunc(to_date('10/01/2017', 'dd/mm/yyyy')), 'DY', 'NLS_DATE_LANGUAGE=SPANISH') IN ('DOM', 'SÁB'));
     do_error("no_laborable()");
-    */
+    
 }
 
 
@@ -86,9 +86,20 @@ void no_laborable(){
 /* ------------------------------------------------------------------------------ */
 
 int bfnProcesar(){
+    char C256_pat_unix[256]; //EXEC SQL VAR C256_pat_unix IS STRING(256);
     
     printf("bfnProcesar\n");
 
+    memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
+
+    /* Obtiene path unix */
+    strcpy(C256_pat_unix, "ls ");
+    strcat(C256_pat_unix, PATH);
+    strcat(C256_pat_unix, "*.csv.gz > ");
+    strcat(C256_pat_unix, PATH);
+    strcat(C256_pat_unix, "lista_inf.txt");
+    
+    system(C256_pat_unix);
 
     return ( TRUE );
 }

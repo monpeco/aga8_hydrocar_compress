@@ -61,10 +61,13 @@ void crear_lista(){
     system(C256_pat_unix);
 }
 void enviar_correo(){
-    char C256_pat_unix[256]; //EXEC SQL VAR C256_pat_unix IS STRING(256);
+    char C256_pat_unix[256];
     FILE   *fpe;
     int     contador=0;
     char    xstring[200];
+    char    file_date_day[20];
+    char    file_date_month[20];
+    char    file_date_year[20];
     
     /* Variables Email */
     char C1024_from_name[1024];
@@ -74,6 +77,8 @@ void enviar_correo(){
     char C1024_cc_email[1024];
     char C1024_subject[1024];
     char C2048_body[2048];
+    
+    char C256_rm[256];
     
     memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
     memset(xstring, '\0', sizeof(xstring));
@@ -106,17 +111,31 @@ void enviar_correo(){
     strcpy(C1024_from_name, "noreply");
     strcpy(c1024_from_email, "ramm@tivit-synapsis.com");
     strcpy(C1024_subject, "Informe Recaudadores");
-    strpcat(C2048_body, "Estimados,\n\nAdjunto archivo correspondiente al día %s, %s de %s de %s.\n\nAtte.\nRodrigo Mugoreni", C003_dia_semana, C003_dia_mes, C003_mes, C003_ano);
     strcpy(C1024_to_email, "AM@tivit-synapsis.com, monpeco@gmail.com");
 
         
-    /* Obtiene path unix */
     strcpy(C256_pat_unix, PATH);
     strcat(C256_pat_unix, "lista_inf.txt");
     fpe = fopen(C256_pat_unix, "r");
     while ( fgets(xstring,100,fpe) != NULL )
     {
         imp_trim(xstring);
+        memset(C2048_body, '\0', sizeof(C2048_body));
+        
+        memset(file_date_day, '\0', sizeof(file_date_day));
+        memset(file_date_month, '\0', sizeof(file_date_month));
+        memset(file_date_year, '\0', sizeof(file_date_year));
+        
+        memcpy( file_date_day, &xstring[26], 2 );
+        file_date_day[2] = '\0';
+        
+        memcpy( file_date_month, &xstring[28], 2 );
+        file_date_month[2] = '\0';
+
+        memcpy( file_date_year, &xstring[30], 4 );
+        file_date_year[4] = '\0';
+
+        strpcat(C2048_body, "Estimados,\n\nAdjunto archivo correspondiente al día %s/%s/%s.\n\nAtte.\nRodrigo Mugoreni", file_date_day, file_date_month, file_date_year);
       
         correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
         correo_body(C2048_body);
@@ -127,8 +146,12 @@ void enviar_correo(){
         if (!correo_enviar()){
             printf(correo_error);
             return ( FALSE );
-        }        
+        }
         
+        memset(C256_rm, '\0', sizeof(C256_rm));
+        strpcat(C256_rm, "rm %s", xstring);
+        system(C256_rm);
+
     }    
 
 }

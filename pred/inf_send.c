@@ -37,6 +37,11 @@ EXEC SQL BEGIN DECLARE SECTION;
 
 char	C002_laborable[2];	EXEC SQL VAR C002_laborable IS STRING(2);
 
+char C003_dia_semana[15]      ;    EXEC SQL VAR C003_dia_semana IS STRING(15)      ;
+char C003_dia_mes[3]          ;    EXEC SQL VAR C003_dia_mes IS STRING(3)          ;
+char C003_mes[15]             ;    EXEC SQL VAR C003_mes IS STRING(15)             ;
+char C003_ano[5]              ;    EXEC SQL VAR C003_ano IS STRING(5)              ;
+
 EXEC SQL END DECLARE SECTION;
 
 
@@ -55,24 +60,74 @@ void crear_lista(){
     
     system(C256_pat_unix);
 }
-void leer_lista(){
+void enviar_correo(){
     char C256_pat_unix[256]; //EXEC SQL VAR C256_pat_unix IS STRING(256);
     FILE   *fpe;
-    int     empresa,contador,aux=-1;
+    int     contador=0;
     char    xstring[200];
     
+    /* Variables Email */
+    char C1024_from_name[1024];
+    char c1024_from_email[1024];
+    char C1024_to_name[1024];
+    char C1024_to_email[1024];
+    char C1024_cc_email[1024];
+    char C1024_subject[1024];
+    char C2048_body[2048];
     
     memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
+    memset(xstring, '\0', sizeof(xstring));
+    
+    memset(C1024_from_name, '\0', sizeof(C1024_from_name));
+    memset(c1024_from_email, '\0', sizeof(c1024_from_email));
+    memset(C1024_subject, '\0', sizeof(C1024_subject));
+    memset(C2048_body, '\0', sizeof(C2048_body));
+    memset(C1024_to_name, '\0', sizeof(C1024_to_name));
+    memset(C1024_to_email, '\0', sizeof(C1024_to_email));
+    memset(C1024_cc_email, '\0', sizeof(C1024_cc_email));
 
+    
+    int iRet=0;
+
+    /* Obtiene fecha del sistema */
+    EXEC SQL
+        SELECT TRIM(TO_CHAR(SYSDATE,'Day'))
+            , TRIM(TO_CHAR(SYSDATE,'DD'))
+            , TRIM(TO_CHAR(SYSDATE,'Month'))
+            , TRIM(TO_CHAR(SYSDATE,'YYYY'))
+        INTO    :C003_dia_semana, :C003_dia_mes, :C003_mes, C003_ano
+        FROM DUAL;
+
+    iRet = do_error("Select SYSDATE - DAY DD MONTH YYYY");
+    if ( iRet == TRUE )
+        return ( FALSE );
+
+
+    strcpy(C1024_from_name, "noreply");
+    strcpy(c1024_from_email, "ramm@tivit-synapsis.com");
+    strcpy(C1024_subject, "Informe Recaudadores");
+    strpcat(C2048_body, "Estimados,\n\nAdjunto archivo correspondiente al día %s, %s de %s de %s.\n\nAtte.\nRodrigo Mugoreni", C003_dia_semana, C003_dia_mes, C003_mes, C003_ano);
+    strcpy(C1024_to_email, "AM@tivit-synapsis.com, monpeco@gmail.com");
+
+        
     /* Obtiene path unix */
     strcpy(C256_pat_unix, PATH);
     strcat(C256_pat_unix, "lista_inf.txt");
     fpe = fopen(C256_pat_unix, "r");
-    contador=0;
     while ( fgets(xstring,100,fpe) != NULL )
     {
         imp_trim(xstring);
-        printf("linea: %s\n", xstring);
+      
+        correo_head(C1024_from_name, c1024_from_email, C1024_to_name, C1024_to_email, C1024_cc_email, C1024_subject);
+        correo_body(C2048_body);
+        
+        xstring[ strlen(xstring)-1 ] = '\0';
+        correo_attach(xstring, "");
+        
+        if (!correo_enviar()){
+            printf(correo_error);
+            return ( FALSE );
+        }        
         
     }    
 
@@ -126,7 +181,7 @@ int bfnProcesar(){
     printf("bfnProcesar\n");
 
     crear_lista();
-    leer_lista();
+    enviar_correo();
 
     return ( TRUE );
 }

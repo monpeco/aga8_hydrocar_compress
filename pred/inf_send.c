@@ -55,6 +55,28 @@ void crear_lista(){
     
     system(C256_pat_unix);
 }
+void leer_lista(){
+    char C256_pat_unix[256]; //EXEC SQL VAR C256_pat_unix IS STRING(256);
+    FILE   *fpe;
+    int     empresa,contador,aux=-1;
+    char    xstring[200];
+    
+    
+    memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
+
+    /* Obtiene path unix */
+    strcpy(C256_pat_unix, PATH);
+    strcat(C256_pat_unix, "lista_inf.txt");
+    fpe = fopen(C256_pat_unix, "r");
+    contador=0;
+    while ( fgets(xstring,100,fpe) != NULL )
+    {
+        imp_trim(xstring);
+        printf("linea: %s\n", xstring);
+        
+    }    
+
+}
 
 void no_laborable(){
     
@@ -104,6 +126,7 @@ int bfnProcesar(){
     printf("bfnProcesar\n");
 
     crear_lista();
+    leer_lista();
 
     return ( TRUE );
 }

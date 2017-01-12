@@ -143,24 +143,24 @@ void enviar_correo(){
         xstring[ strlen(xstring)-1 ] = '\0';
         correo_attach(xstring, "");
         
+
+        
+        // memset(C256_rm, '\0', sizeof(C256_rm));
+        // strpcat(C256_rm, "rm %s", xstring);
+        // system(C256_rm);
+
+    }    
         if (!correo_enviar()){
             printf(correo_error);
             return ( FALSE );
         }
-        
-        memset(C256_rm, '\0', sizeof(C256_rm));
-        strpcat(C256_rm, "rm %s", xstring);
-        system(C256_rm);
-
-    }    
-
 }
 
 void no_laborable(){
     
     memset(C002_laborable, '\0', sizeof(C002_laborable));
     
-    /*
+    
     EXEC SQL
         select nvl(max(xxx),0)
         INTO :C002_laborable
@@ -175,9 +175,9 @@ void no_laborable(){
         from dual
             where to_char(sysdate-1, 'DY', 'NLS_DATE_LANGUAGE=SPANISH') IN ('DOM', 'SÁB'));
     do_error("no_laborable()");
-    */
     
     
+    /*
     EXEC SQL
         select nvl(max(xxx),0)
         INTO :C002_laborable
@@ -192,7 +192,7 @@ void no_laborable(){
             from dual
                 where to_char(trunc(to_date('10/01/2017', 'dd/mm/yyyy')), 'DY', 'NLS_DATE_LANGUAGE=SPANISH') IN ('DOM', 'SÁB'));
     do_error("no_laborable()");
-    
+    */
 }
 
 
@@ -224,6 +224,7 @@ main(int argc,char **argv)
     no_laborable();
     if (strcmp(C002_laborable, "1") == 0 ){
         printf("Se evalua como no laborable\n");
+        //exit(0);
     }else{
         printf("Laborable\n");
 

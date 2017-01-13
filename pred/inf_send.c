@@ -48,7 +48,6 @@ EXEC SQL END DECLARE SECTION;
 void crear_lista(){
     char C256_pat_unix[256]; //EXEC SQL VAR C256_pat_unix IS STRING(256);
     
-
     memset(C256_pat_unix, '\0', sizeof(C256_pat_unix));
 
     /* Obtiene path unix */
@@ -60,6 +59,7 @@ void crear_lista(){
     
     system(C256_pat_unix);
 }
+
 void enviar_correo(){
     char C256_pat_unix[256];
     FILE   *fpe;
@@ -160,7 +160,7 @@ void no_laborable(){
     
     memset(C002_laborable, '\0', sizeof(C002_laborable));
     
-    /*
+
     EXEC SQL
         select nvl(max(xxx),0)
         INTO :C002_laborable
@@ -175,23 +175,7 @@ void no_laborable(){
         from dual
             where to_char(sysdate-1, 'DY', 'NLS_DATE_LANGUAGE=SPANISH') IN ('DOM', 'SÁB'));
     do_error("no_laborable()");
-    */
-    
-    
-    EXEC SQL
-        select nvl(max(xxx),0)
-        INTO :C002_laborable
-        from ( select 1 xxx
-            from nucssb0054
-                where cod_empresa in (1,2)
-                and est_registro = 'A'
-                and cod_sistema = 'AIC'
-                and fecha  = trunc(to_date('10/01/2017', 'dd/mm/yyyy'))
-            union
-            select 1
-            from dual
-                where to_char(trunc(to_date('10/01/2017', 'dd/mm/yyyy')), 'DY', 'NLS_DATE_LANGUAGE=SPANISH') IN ('DOM', 'SÁB'));
-    do_error("no_laborable()");
+
     
 }
 
@@ -224,11 +208,8 @@ main(int argc,char **argv)
     no_laborable();
     if (strcmp(C002_laborable, "1") == 0 ){
         printf("Se evalua como no laborable\n");
-    }else{
-        printf("Laborable\n");
-
+        exit(0);
     }
-        
 
     if(!bfnProcesar()){
         printf("Error\n");
